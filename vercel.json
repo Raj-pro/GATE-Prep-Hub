@@ -3,6 +3,9 @@
   "outputDirectory": ".",
   "framework": null,
   "cleanUrls": true,
+  "rewrites": [
+    { "source": "/hub", "destination": "/hub.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",

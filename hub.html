@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="GATE Prep Hub — subject-wise notes, annotations, bookmarks and progress tracking." />
+  <meta name="theme-color" content="#0a0d14" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>GATE Prep Hub — Book Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+</head>
+<body>
+
+  <!-- ── Skip navigation (WCAG 2.4.1) ── -->
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <!-- ── Offline banner ── -->
+  <div id="offline-banner" class="offline-banner" role="status" hidden>
+    You are offline — previously viewed notes are still available.
+  </div>
+
+  <!-- ── Toast region ── -->
+  <div id="toast-container" class="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- ── Auth Modal ── -->
+  <div id="auth-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title" hidden>
+    <div class="modal" tabindex="-1">
+      <button class="modal-close" id="auth-modal-close" aria-label="Close sign-in dialog">✕</button>
+
+      <div class="modal-tabs" role="tablist">
+        <button role="tab" aria-selected="true" aria-controls="tab-login" id="tab-login-btn" class="modal-tab active">Sign In</button>
+        <button role="tab" aria-selected="false" aria-controls="tab-register" id="tab-register-btn" class="modal-tab">Register</button>
+      </div>
+
+      <!-- Login tab -->
+      <div id="tab-login" role="tabpanel" aria-labelledby="tab-login-btn">
+        <h2 id="auth-modal-title" class="modal-title">Welcome back</h2>
+        <p class="modal-subtitle">Sign in to access all notes</p>
+        <form id="login-form" novalidate>
+          <div class="field-group">
+            <label for="login-email" class="field-label">Email</label>
+            <input id="login-email" type="email" class="field-input" autocomplete="email" required placeholder="you@example.com" />
+            <span class="field-error" id="login-email-error" role="alert"></span>
+          </div>
+          <div class="field-group">
+            <label for="login-password" class="field-label">Password</label>
+            <div class="password-wrap">
+              <input id="login-password" type="password" class="field-input" autocomplete="current-password" required placeholder="••••••••" />
+              <button type="button" class="password-toggle" aria-label="Show password" data-target="login-password">👁</button>
+            </div>
+            <span class="field-error" id="login-password-error" role="alert"></span>
+          </div>
+          <button type="button" class="link-btn" id="forgot-password-btn">Forgot password?</button>
+          <button type="submit" class="btn btn-primary btn-full" id="login-submit-btn">Sign In</button>
+        </form>
+      </div>
+
+      <!-- Register tab -->
+      <div id="tab-register" role="tabpanel" aria-labelledby="tab-register-btn" hidden>
+        <h2 class="modal-title">Create account</h2>
+        <p class="modal-subtitle">Start your GATE preparation journey</p>
+        <form id="register-form" novalidate>
+          <div class="field-group">
+            <label for="reg-name" class="field-label">Full Name</label>
+            <input id="reg-name" type="text" class="field-input" autocomplete="name" required placeholder="Rajesh Kumar" />
+            <span class="field-error" id="reg-name-error" role="alert"></span>
+          </div>
+          <div class="field-group">
+            <label for="reg-email" class="field-label">Email</label>
+            <input id="reg-email" type="email" class="field-input" autocomplete="email" required placeholder="you@example.com" />
+            <span class="field-error" id="reg-email-error" role="alert"></span>
+          </div>
+          <div class="field-group">
+            <label for="reg-password" class="field-label">Password</label>
+            <div class="password-wrap">
+              <input id="reg-password" type="password" class="field-input" autocomplete="new-password" required placeholder="Min 8 characters" />
+              <button type="button" class="password-toggle" aria-label="Show password" data-target="reg-password">👁</button>
+            </div>
+            <div class="password-strength" id="password-strength" aria-live="polite"></div>
+            <span class="field-error" id="reg-password-error" role="alert"></span>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="reg-submit-btn">Create Account</button>
+          <p class="modal-legal">By registering you agree to our <a href="#" class="link-btn">Terms</a> and <a href="#" class="link-btn">Privacy Policy</a>.</p>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── App Shell ── -->
+  <div class="app" id="app">
+
+    <!-- Topbar -->
+    <header class="topbar" role="banner">
+      <div class="topbar-left">
+        <button class="icon-btn sidebar-toggle" id="sidebar-toggle" aria-label="Toggle navigation sidebar" aria-expanded="true" aria-controls="sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <a href="/" class="logo-link" aria-label="GATE Prep Hub home" id="home-link">
+          <span class="logo-icon" aria-hidden="true">📚</span>
+          <span class="logo-text">GATE Prep <span class="logo-tag">HUB</span></span>
+        </a>
+      </div>
+
+      <div class="topbar-center">
+        <div class="search-bar" role="search">
+          <label for="global-search" class="sr-only">Search notes and subjects</label>
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="global-search" type="search" class="search-input" placeholder="Search subjects, notes…" autocomplete="off" aria-autocomplete="list" aria-controls="search-listbox" aria-expanded="false" role="combobox" />
+          <kbd class="search-kbd" aria-label="Press slash to focus search">/</kbd>
+        </div>
+        <ul id="search-listbox" class="search-dropdown" role="listbox" aria-label="Search results" hidden></ul>
+      </div>
+
+      <div class="topbar-right">
+        <button class="icon-btn" id="favorites-btn" aria-label="View favorites" title="Favorites">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="badge" id="favorites-badge" hidden>0</span>
+        </button>
+        <button class="icon-btn" id="bookmarks-btn" aria-label="View bookmarks" title="Bookmarks">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <div class="topbar-sep" aria-hidden="true"></div>
+        <button class="btn btn-primary btn-sm" id="auth-btn" aria-haspopup="dialog">Sign In</button>
+        <div class="user-menu" id="user-menu" hidden>
+          <button class="user-avatar-btn" id="user-avatar-btn" aria-haspopup="true" aria-expanded="false" aria-label="User menu">
+            <span class="user-avatar" id="user-avatar-initials" aria-hidden="true">R</span>
+          </button>
+          <div class="user-dropdown" id="user-dropdown" role="menu" hidden>
+            <div class="user-dropdown-header" id="user-dropdown-name">User</div>
+            <hr class="dropdown-sep" />
+            <button role="menuitem" class="dropdown-item" id="profile-btn">👤 My Profile</button>
+            <button role="menuitem" class="dropdown-item" id="admin-btn" hidden>🔧 Admin Panel</button>
+            <hr class="dropdown-sep" />
+            <button role="menuitem" class="dropdown-item dropdown-item-danger" id="logout-btn">Sign Out</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar" aria-label="Subject navigation">
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">
+          <div class="sidebar-section-label" id="subjects-heading">Subjects</div>
+          <ul class="subject-list" id="subject-list" role="tree" aria-labelledby="subjects-heading"></ul>
+        </div>
+
+        <div class="sidebar-section sidebar-section-favorites" id="sidebar-favorites" hidden>
+          <div class="sidebar-section-label">Favorites</div>
+          <ul class="favorite-list" id="favorite-list" role="list"></ul>
+        </div>
+
+        <div class="sidebar-section sidebar-section-bookmarks" id="sidebar-bookmarks" hidden>
+          <div class="sidebar-section-label">Bookmarks</div>
+          <ul class="bookmark-list" id="bookmark-list" role="list"></ul>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="progress-track">
+          <div class="progress-label">
+            <span id="progress-text">0 of 49 notes viewed</span>
+            <span id="progress-pct">0%</span>
+          </div>
+          <div class="progress-bar-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Study progress">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main id="main-content" class="main" role="main" tabindex="-1">
+
+      <!-- PDF Viewer toolbar -->
+      <div class="viewer-toolbar" id="viewer-toolbar" role="toolbar" aria-label="PDF viewer controls" hidden>
+        <div class="viewer-toolbar-left">
+          <button class="icon-btn" id="close-viewer-btn" aria-label="Close PDF viewer">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <div class="viewer-breadcrumb">
+            <span id="viewer-subject-name" class="viewer-breadcrumb-subject"></span>
+            <span aria-hidden="true"> › </span>
+            <span id="viewer-pdf-name" class="viewer-breadcrumb-pdf"></span>
+          </div>
+        </div>
+        <div class="viewer-toolbar-center">
+          <input id="page-input" type="number" class="page-input" min="1" value="1" aria-label="Page number" style="display:none" />
+          <span id="page-total" style="display:none"></span>
+        </div>
+        <div class="viewer-toolbar-right">
+          <button class="icon-btn" id="annotate-btn" aria-label="Add annotation" title="Add note" aria-pressed="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="icon-btn" id="bookmark-page-btn" aria-label="Bookmark this page" title="Bookmark page">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          </button>
+          <button class="icon-btn" id="favorite-btn" aria-label="Add to favorites" title="Favorite" aria-pressed="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+          <div class="topbar-sep" aria-hidden="true"></div>
+          <a class="btn btn-ghost btn-sm" id="open-new-tab-btn" href="#" target="_blank" rel="noopener noreferrer">↗ Open</a>
+          <a class="btn btn-primary btn-sm" id="download-btn" href="#" download>⬇ Download</a>
+        </div>
+      </div>
+
+      <!-- Annotation panel -->
+      <aside class="annotation-panel" id="annotation-panel" aria-label="Annotations" hidden>
+        <div class="annotation-panel-header">
+          <h3 class="annotation-panel-title">Notes</h3>
+          <button class="icon-btn" id="close-annotation-panel" aria-label="Close notes panel">✕</button>
+        </div>
+        <form id="annotation-form" class="annotation-form">
+          <label for="annotation-input" class="sr-only">New annotation</label>
+          <textarea id="annotation-input" class="annotation-textarea" placeholder="Add a note for this PDF…" rows="3" aria-required="false"></textarea>
+          <div class="annotation-form-footer">
+            <label for="annotation-page" class="field-label-sm">Page</label>
+            <input id="annotation-page" type="number" class="page-input-sm" min="1" value="1" />
+            <button type="submit" class="btn btn-primary btn-sm">Save</button>
+          </div>
+        </form>
+        <ul class="annotation-list" id="annotation-list" role="list" aria-label="Saved annotations"></ul>
+      </aside>
+
+      <!-- PDF Frame area -->
+      <div class="viewer-area" id="viewer-area" hidden>
+        <iframe id="pdf-frame" class="pdf-frame" src="about:blank" title="PDF viewer" allowfullscreen loading="lazy"></iframe>
+        <div class="pdf-fallback" id="pdf-fallback" hidden>
+          <div class="pdf-fallback-icon" aria-hidden="true">📄</div>
+          <h2 class="pdf-fallback-title">PDF cannot be displayed inline</h2>
+          <p class="pdf-fallback-body">Your browser blocked the preview. Open or download the file directly.</p>
+          <div class="pdf-fallback-actions">
+            <a class="btn btn-primary" id="fallback-open-btn" href="#" target="_blank" rel="noopener noreferrer">Open in new tab</a>
+            <a class="btn btn-ghost" id="fallback-download-btn" href="#" download>Download PDF</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Welcome screen -->
+      <div class="welcome" id="welcome-screen">
+        <div class="welcome-hero">
+          <div class="welcome-icon" aria-hidden="true">📚</div>
+          <h1 class="welcome-title">GATE Prep Hub</h1>
+          <p class="welcome-subtitle">49 notes across 12 subjects — annotate, bookmark and track your progress.</p>
+        </div>
+        <div class="stats-row" id="stats-row" aria-label="Library statistics"></div>
+        <div class="subject-grid" id="subject-grid" aria-label="Browse subjects"></div>
+      </div>
+
+      <!-- Favorites view -->
+      <div class="view-panel" id="favorites-view" hidden>
+        <h2 class="view-panel-title">❤ Favorites</h2>
+        <p class="view-panel-subtitle">Notes you've starred for quick access.</p>
+        <ul class="grid-list" id="favorites-grid" role="list"></ul>
+      </div>
+
+      <!-- Bookmarks view -->
+      <div class="view-panel" id="bookmarks-view" hidden>
+        <h2 class="view-panel-title">🔖 Bookmarks</h2>
+        <p class="view-panel-subtitle">Pages you've bookmarked across notes.</p>
+        <ul class="grid-list" id="bookmarks-grid" role="list"></ul>
+      </div>
+
+      <!-- Profile view -->
+      <div class="view-panel" id="profile-view" hidden>
+        <div id="profile-content"></div>
+      </div>
+
+    </main>
+  </div><!-- /.app -->
+
+  <!-- Admin panel -->
+  <div id="admin-panel" class="admin-panel" role="complementary" aria-label="Admin panel" hidden></div>
+
+  <!-- Admin edit user modal -->
+  <div id="admin-edit-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="admin-edit-title" hidden>
+    <div class="modal" style="max-width:420px">
+      <button class="modal-close" id="admin-edit-close" aria-label="Close">✕</button>
+      <h2 class="modal-title" id="admin-edit-title">Edit User</h2>
+      <form id="admin-edit-form" style="display:grid;gap:14px;margin-top:16px">
+        <input type="hidden" id="admin-edit-id" />
+        <div class="field-group">
+          <label class="field-label" for="admin-edit-name">Name</label>
+          <input id="admin-edit-name" type="text" class="field-input" required />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px">
+            <input type="checkbox" id="admin-edit-pro" /> Pro account
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px">
+            <input type="checkbox" id="admin-edit-admin" /> Admin access
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px">
+            <input type="checkbox" id="admin-edit-banned" /> Banned (block login)
+          </label>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+          <button type="button" class="btn btn-ghost btn-sm" id="admin-edit-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="admin-edit-save">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div class="page-loader" id="page-loader" aria-hidden="true"></div>
+
+  <!-- Scripts — config first, then SDK, then app modules -->
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="supabase.js" defer></script>
+  <script src="analytics.js" defer></script>
+  <script src="search.js" defer></script>
+  <script src="auth.js" defer></script>
+  <script src="admin.js" defer></script>
+  <script src="app.js" defer></script>
+
+  <!-- Auto-open sign-in modal if redirected from home page with ?signin=1 -->
+  <script>
+    if (new URLSearchParams(location.search).get('signin') === '1') {
+      window.addEventListener('load', () => {
+        setTimeout(() => window.Auth?.openModal('login'), 400);
+        history.replaceState(null, '', location.pathname);
+      });
+    }
+  </script>
+</body>
+</html>

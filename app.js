@@ -429,7 +429,7 @@ function renderSidebar() {
   renderSidebarBookmarks();
 }
 
-function renderPdfItem(p, sub) {
+function renderPdfItem(p) {
   const isFav     = store.favorites.has(p.id);
   const isViewed  = store.viewed.has(p.id);
   const isActive  = state.currentPdfId === p.id;
@@ -1189,17 +1189,28 @@ function wireEvents() {
   // Sidebar toggle
   dom.sidebarToggle.addEventListener('click', toggleSidebar);
 
-  // Home link
-  dom.homeLink.addEventListener('click', e => { e.preventDefault(); closePdf(); });
+  // Home link — navigate back to landing page
+  dom.homeLink.addEventListener('click', e => {
+    e.preventDefault();
+    window.location.href = '/';
+  });
 
   // Close viewer
   dom.closeViewerBtn.addEventListener('click', closePdf);
 
-  // Favorites view
-  dom.favoritesBtn.addEventListener('click', () => { showScreen('favorites'); renderFavoritesGrid(); });
+  // Favorites view — require login
+  dom.favoritesBtn.addEventListener('click', () => {
+    if (!window.Auth?.user) { window.Auth?.openModal('login'); return; }
+    showScreen('favorites');
+    renderFavoritesGrid();
+  });
 
-  // Bookmarks view
-  dom.bookmarksBtn.addEventListener('click', () => { showScreen('bookmarks'); renderBookmarksGrid(); });
+  // Bookmarks view — require login
+  dom.bookmarksBtn.addEventListener('click', () => {
+    if (!window.Auth?.user) { window.Auth?.openModal('login'); return; }
+    showScreen('bookmarks');
+    renderBookmarksGrid();
+  });
 
   // Annotate toggle
   dom.annotateBtn.addEventListener('click', () => {
