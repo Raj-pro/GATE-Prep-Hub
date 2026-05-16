@@ -16,7 +16,7 @@
 'use strict';
 
 (function () {
-  const GA_ID = 'G-XXXXXXXXXX'; // ← replace in production
+  const GA_ID = window.ENV?.GA_MEASUREMENT_ID || '';
 
   /* Respect Do Not Track */
   const dnt = navigator.doNotTrack === '1' || window.doNotTrack === '1';
@@ -25,8 +25,7 @@
   const queue = [];
   let gtagReady = false;
 
-  /* ── Load GA4 (uncomment in production) ──
-  if (!dnt && GA_ID !== 'G-XXXXXXXXXX') {
+  if (!dnt && GA_ID && GA_ID !== 'G-XXXXXXXXXX') {
     const s = document.createElement('script');
     s.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
     s.async = true;
@@ -44,7 +43,6 @@
       send_page_view: true,
     });
   }
-  */
 
   function flush() {
     while (queue.length) {

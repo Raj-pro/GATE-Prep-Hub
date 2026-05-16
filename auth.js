@@ -55,7 +55,7 @@
   /* Resolve admin status from the profiles table — never trust user_metadata for this. */
   async function fetchIsAdmin(userId) {
     try {
-      const { data } = await sb().from('profiles').select('is_admin').eq('id', userId).single();
+      const { data } = await sb().from('profiles').select('is_admin').eq('id', userId).maybeSingle();
       return data?.is_admin === true;
     } catch { return false; }
   }
@@ -212,7 +212,7 @@
     const user = toUser(data.user);
 
     // Check ban status and read admin flag in one query
-    const { data: profile } = await client.from('profiles').select('is_banned, is_admin').eq('id', data.user.id).single();
+    const { data: profile } = await client.from('profiles').select('is_banned, is_admin').eq('id', data.user.id).maybeSingle();
     if (profile?.is_banned) {
       await client.auth.signOut();
       throw new Error('Your account has been suspended. Contact support.');
@@ -267,9 +267,8 @@
   async function signOut() {
     const client = sb();
     if (client) await client.auth.signOut();
-    notifyApp(null);
-    showToast('You have been signed out.');
     window.Analytics?.track('auth_logout');
+    location.reload();
   }
 
   /** Handle ?reset=1 return from password-reset email */
@@ -507,7 +506,7 @@
 
     /* Logout from user menu */
     $('logout-btn')?.addEventListener('click', () => {
-      $('user-dropdown')?.setAttribute('hidden', '');
+      const dd = $('user-dropdown'); if (dd) dd.hidden = true;
       signOut();
     });
   }

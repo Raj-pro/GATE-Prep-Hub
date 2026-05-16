@@ -165,10 +165,11 @@ SUBJECTS.forEach(sub => {
    State
 ───────────────────────────────────────────── */
 const state = {
-  currentPdfId:   null,
-  sidebarOpen:    true,
-  annotateMode:   false,
-  dropdownOpen:   false,
+  currentPdfId:    null,
+  sidebarOpen:     true,
+  annotateMode:    false,
+  dropdownOpen:    false,
+  pageManuallySet: false,  // true once user has typed a page number
 };
 
 /* Persisted in localStorage */
@@ -183,6 +184,87 @@ const store = {
     localStorage.setItem('gh_viewed',      JSON.stringify([...this.viewed]));
     localStorage.setItem('gh_bookmarks',   JSON.stringify(this.bookmarks));
     localStorage.setItem('gh_annotations', JSON.stringify(this.annotations));
+  },
+};
+
+/* ─────────────────────────────────────────────
+   Supabase sync — favorites & bookmarks
+───────────────────────────────────────────── */
+const dbSync = {
+  _sb() { return (window.supabase?.from) ? window.supabase : null; },
+
+  /** On login: fetch user's favorites + bookmarks from Supabase and merge into store */
+  async loadForUser(userId) {
+    const sb = this._sb();
+    if (!sb || !userId) return;
+    try {
+      const [favRes, bmRes] = await Promise.all([
+        sb.from('favorites').select('pdf_id').eq('user_id', userId),
+        sb.from('bookmarks').select('pdf_id, page, created_at').eq('user_id', userId),
+      ]);
+
+      // Merge favorites
+      if (favRes.data) {
+        favRes.data.forEach(r => store.favorites.add(r.pdf_id));
+      }
+
+      // Merge bookmarks (server wins for new entries, keep any local-only ones too)
+      if (bmRes.data) {
+        bmRes.data.forEach(r => {
+          if (!store.bookmarks[r.pdf_id]) store.bookmarks[r.pdf_id] = [];
+          if (!store.bookmarks[r.pdf_id].find(b => b.page === r.page)) {
+            store.bookmarks[r.pdf_id].push({ page: r.page, addedAt: r.created_at });
+          }
+        });
+      }
+
+      store.save();
+      renderSidebarFavorites();
+      renderFavoritesGrid();
+      renderSidebarBookmarks();
+      renderBookmarksGrid();
+      updateProgress();
+    } catch (e) {
+      console.warn('[dbSync] load failed:', e);
+    }
+  },
+
+  /** Upsert or delete a favorite row */
+  async syncFavorite(userId, pdfId, added) {
+    const sb = this._sb();
+    if (!sb || !userId) return;
+    try {
+      if (added) {
+        await sb.from('favorites').upsert(
+          { user_id: userId, pdf_id: pdfId },
+          { onConflict: 'user_id,pdf_id' }
+        );
+      } else {
+        await sb.from('favorites').delete()
+          .eq('user_id', userId).eq('pdf_id', pdfId);
+      }
+    } catch (e) {
+      console.warn('[dbSync] syncFavorite failed:', e);
+    }
+  },
+
+  /** Upsert or delete a bookmark row */
+  async syncBookmark(userId, pdfId, page, added) {
+    const sb = this._sb();
+    if (!sb || !userId) return;
+    try {
+      if (added) {
+        await sb.from('bookmarks').upsert(
+          { user_id: userId, pdf_id: pdfId, page },
+          { onConflict: 'user_id,pdf_id,page' }
+        );
+      } else {
+        await sb.from('bookmarks').delete()
+          .eq('user_id', userId).eq('pdf_id', pdfId).eq('page', page);
+      }
+    } catch (e) {
+      console.warn('[dbSync] syncBookmark failed:', e);
+    }
   },
 };
 
@@ -210,7 +292,6 @@ const dom = {
   userAvatarInit:   $('user-avatar-initials'),
   userDropdown:     $('user-dropdown'),
   userDropdownName: $('user-dropdown-name'),
-  userDropdownPlan: $('user-dropdown-plan'),
   adminBtn:         $('admin-btn'),
   logoutBtn:        $('logout-btn'),
   // viewer toolbar
@@ -375,11 +456,27 @@ function renderPdfItem(p, sub) {
   `;
 }
 
+/* Populate PDF_MAP with custom notes from localStorage */
+function loadCustomNotesIntoPdfMap() {
+  [...PDF_MAP.keys()].filter(k => String(k).startsWith('custom_')).forEach(k => PDF_MAP.delete(k));
+  const custom = JSON.parse(localStorage.getItem('gh_admin_custom') || '[]');
+  custom.forEach(c => {
+    const sub = SUBJECT_MAP.get(c.subjectId) || { id: c.subjectId, name: c.subjectName || 'Custom' };
+    PDF_MAP.set(c.id, { ...c, subject: sub });
+  });
+}
+
 function getVisibleSubjects() {
   const hidden = JSON.parse(localStorage.getItem('gh_admin_hidden') || '[]');
   const hiddenSet = new Set(hidden);
   const custom = JSON.parse(localStorage.getItem('gh_admin_custom') || '[]');
-  return [...SUBJECTS.filter(s => !hiddenSet.has(s.id)), ...custom];
+  // Inject custom notes into their parent subject's pdfs array — never append as subjects
+  return SUBJECTS
+    .filter(s => !hiddenSet.has(s.id))
+    .map(s => {
+      const extras = custom.filter(c => c.subjectId === s.id);
+      return extras.length ? { ...s, pdfs: [...s.pdfs, ...extras] } : s;
+    });
 }
 
 function toggleSubject(li) {
@@ -464,8 +561,10 @@ function openPdf(pdfId) {
   dom.pdfFrame.onerror = showPdfFallback;
 
   // Reset annotation page to 1
-  dom.annotationPage.value = 1;
-  dom.pageInput.value      = 1;
+  dom.annotationPage.value  = 1;
+  dom.pageInput.value       = 1;
+  state.pageManuallySet     = false;
+  dom.bookmarkPageBtn.style.color = '';
 
   // Render annotations
   renderAnnotations(pdfId);
@@ -486,7 +585,7 @@ function openPdf(pdfId) {
       pdf_id:   pdfId,
       pdf_name: entry.name,
       subject:  sub.name,
-    }).then(() => {}).catch(() => {});
+    }).then(() => {}).catch(err => console.debug('[pdf_views] insert failed:', err?.code, err?.message));
   }
 
   // Update progress
@@ -551,6 +650,10 @@ function toggleFavorite(pdfId) {
     toast(`Added "${entry.name}" to favorites`, 'success');
   }
   store.save();
+
+  // Sync to Supabase
+  const _favUser = window.Auth?.user;
+  if (_favUser) dbSync.syncFavorite(_favUser.id, pdfId, store.favorites.has(pdfId));
 
   // Update badge
   const count = store.favorites.size;
@@ -619,23 +722,132 @@ function renderFavoritesGrid() {
 function bookmarkCurrentPage() {
   const pdfId = state.currentPdfId;
   if (!pdfId) return;
-  const page = parseInt(dom.pageInput.value, 10) || 1;
-  if (!store.bookmarks[pdfId]) store.bookmarks[pdfId] = [];
+  showBookmarkModal(pdfId);
+}
 
-  const exists = store.bookmarks[pdfId].find(b => b.page === page);
-  if (exists) {
-    store.bookmarks[pdfId] = store.bookmarks[pdfId].filter(b => b.page !== page);
-    toast(`Bookmark removed — page ${page}`);
-    dom.bookmarkPageBtn.style.color = '';
-  } else {
-    store.bookmarks[pdfId].push({ page, addedAt: new Date().toISOString() });
-    toast(`Page ${page} bookmarked`, 'success');
+function showBookmarkModal(pdfId) {
+  document.getElementById('bookmark-modal')?.remove();
+
+  const entry = PDF_MAP.get(pdfId);
+  const overlay = document.createElement('div');
+  overlay.id = 'bookmark-modal';
+  overlay.style.cssText = `
+    position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.6);backdrop-filter:blur(4px);
+  `;
+  overlay.innerHTML = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;
+                padding:24px 28px;width:340px;max-height:80vh;overflow-y:auto;
+                box-shadow:0 24px 64px rgba(0,0,0,.5)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <h3 style="margin:0;font-size:15px;font-weight:700">🔖 Bookmarks</h3>
+        <button id="bm-close" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0 4px">✕</button>
+      </div>
+      <p style="margin:0 0 4px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">
+        ${escHtml(entry?.name || '')}
+      </p>
+
+      <!-- Existing bookmarks list -->
+      <ul id="bm-list" style="list-style:none;margin:0 0 18px;padding:0;display:flex;flex-direction:column;gap:6px"></ul>
+
+      <!-- Add new bookmark -->
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <p style="margin:0 0 10px;font-size:13px;color:var(--muted)">
+          Add bookmark — enter the page number shown in the PDF viewer
+        </p>
+        <div style="display:flex;gap:8px">
+          <input id="bm-page-input" type="number" min="1" placeholder="Page no."
+            style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border);
+                   background:var(--bg);color:var(--text);font-size:14px" />
+          <button id="bm-add" class="btn btn-primary btn-sm">Add</button>
+        </div>
+        <span id="bm-err" style="font-size:11px;color:var(--accent-err);display:none;margin-top:6px">
+          Enter a valid page number.
+        </span>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  function renderList() {
+    const list = document.getElementById('bm-list');
+    const pages = (store.bookmarks[pdfId] || []).slice().sort((a, b) => a.page - b.page);
+    if (!pages.length) {
+      list.innerHTML = `<li style="font-size:13px;color:var(--muted);padding:4px 0">No bookmarks yet.</li>`;
+      dom.bookmarkPageBtn.style.color = '';
+      return;
+    }
     dom.bookmarkPageBtn.style.color = 'var(--accent)';
+    list.innerHTML = pages.map(b => `
+      <li data-page="${b.page}" style="display:flex;align-items:center;justify-content:space-between;
+           padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+        <span style="font-size:13px">Page <strong>${b.page}</strong></span>
+        <button class="bm-remove btn btn-ghost btn-sm" data-page="${b.page}"
+          style="font-size:11px;padding:3px 8px;color:var(--accent-err)">Remove</button>
+      </li>
+    `).join('');
+
+    list.querySelectorAll('.bm-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const page = parseInt(btn.dataset.page, 10);
+        store.bookmarks[pdfId] = (store.bookmarks[pdfId] || []).filter(b => b.page !== page);
+        store.save();
+        const _bmUser = window.Auth?.user;
+        if (_bmUser) dbSync.syncBookmark(_bmUser.id, pdfId, page, false);
+        renderSidebarBookmarks();
+        renderBookmarksGrid();
+        toast(`Bookmark removed — page ${page}`);
+        renderList();
+        window.Analytics?.track('bookmark_remove', { pdfId, page });
+      });
+    });
   }
-  store.save();
-  renderSidebarBookmarks();
-  renderBookmarksGrid();
-  window.Analytics?.track('bookmark_toggle', { pdfId, page });
+
+  renderList();
+
+  const input = document.getElementById('bm-page-input');
+  const errEl = document.getElementById('bm-err');
+  input.focus();
+
+  function addBookmark() {
+    const page = parseInt(input.value, 10);
+    if (!page || page < 1) {
+      errEl.style.display = 'block';
+      input.style.borderColor = 'var(--accent-err)';
+      input.focus();
+      return;
+    }
+    errEl.style.display = 'none';
+    input.style.borderColor = '';
+
+    if (!store.bookmarks[pdfId]) store.bookmarks[pdfId] = [];
+    if (store.bookmarks[pdfId].find(b => b.page === page)) {
+      errEl.textContent = `Page ${page} is already bookmarked.`;
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.textContent = 'Enter a valid page number.';
+    store.bookmarks[pdfId].push({ page, addedAt: new Date().toISOString() });
+    store.save();
+    const _bmAddUser = window.Auth?.user;
+    if (_bmAddUser) dbSync.syncBookmark(_bmAddUser.id, pdfId, page, true);
+    renderSidebarBookmarks();
+    renderBookmarksGrid();
+    toast(`Page ${page} bookmarked`, 'success');
+    input.value = '';
+    renderList();
+    window.Analytics?.track('bookmark_add', { pdfId, page });
+  }
+
+  document.getElementById('bm-add').addEventListener('click', addBookmark);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') addBookmark(); });
+
+  function close() { overlay.remove(); }
+  document.getElementById('bm-close').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
+  });
 }
 
 function renderSidebarBookmarks() {
@@ -652,7 +864,15 @@ function renderSidebarBookmarks() {
       li.setAttribute('tabindex', '0');
       li.addEventListener('click', () => {
         openPdf(pdfId);
-        setTimeout(() => { dom.pageInput.value = page; }, 500);
+        setTimeout(() => {
+          dom.pageInput.value = page;
+          state.pageManuallySet = true;
+          const bEntry = PDF_MAP.get(pdfId);
+          if (bEntry?.driveId) {
+            dom.pdfFrame.src = `https://drive.google.com/file/d/${bEntry.driveId}/preview#page=${page}`;
+          }
+          dom.bookmarkPageBtn.style.color = 'var(--accent)';
+        }, 600);
       });
       li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') li.click(); });
       dom.bookmarkList.appendChild(li);
@@ -677,7 +897,15 @@ function renderBookmarksGrid() {
       `;
       li.querySelector('.grid-card').addEventListener('click', () => {
         openPdf(pdfId);
-        setTimeout(() => { dom.pageInput.value = page; }, 500);
+        setTimeout(() => {
+          dom.pageInput.value = page;
+          state.pageManuallySet = true;
+          const bEntry = PDF_MAP.get(pdfId);
+          if (bEntry?.driveId) {
+            dom.pdfFrame.src = `https://drive.google.com/file/d/${bEntry.driveId}/preview#page=${page}`;
+          }
+          dom.bookmarkPageBtn.style.color = 'var(--accent)';
+        }, 600);
       });
       dom.bookmarksGrid.appendChild(li);
     });
@@ -770,9 +998,10 @@ function renderWelcome() {
    Progress tracker
 ───────────────────────────────────────────── */
 function updateProgress() {
+  const visibleTotal = getVisibleSubjects().reduce((n, s) => n + s.pdfs.length, 0);
   const viewed = store.viewed.size;
-  const pct    = Math.round((viewed / TOTAL_PDFS) * 100);
-  dom.progressText.textContent = `${viewed} of ${TOTAL_PDFS} notes viewed`;
+  const pct    = Math.round((viewed / (visibleTotal || 1)) * 100);
+  dom.progressText.textContent = `${viewed} of ${visibleTotal} notes viewed`;
   dom.progressPct.textContent  = `${pct}%`;
   dom.progressFill.style.width = `${pct}%`;
   dom.progressWrap?.setAttribute('aria-valuenow', pct);
@@ -1024,16 +1253,7 @@ function wireEvents() {
   // Logout
   dom.logoutBtn?.addEventListener('click', () => { toggleUserDropdown(false); window.Auth?.signOut(); });
 
-  // Page input → jump page
-  dom.pageInput.addEventListener('change', () => {
-    // In iframe mode there's no page API; just update the label
-    const page = parseInt(dom.pageInput.value, 10) || 1;
-    if (state.currentPdfId) {
-      const pages = store.bookmarks[state.currentPdfId] || [];
-      const on = pages.some(b => b.page === page);
-      dom.bookmarkPageBtn.style.color = on ? 'var(--accent)' : '';
-    }
-  });
+  // page-input is now hidden — no listeners needed
 
   // Mobile: close sidebar on backdrop click
   dom.app.addEventListener('click', e => {
@@ -1054,11 +1274,29 @@ window.onAuthStateChange = function(user) {
     dom.userAvatarInit.textContent = (user.name || user.email || 'U')[0].toUpperCase();
     dom.userDropdownName.textContent = user.name || user.email;
     dom.adminBtn.hidden = !user.isAdmin;
+    // Clear any leftover data from a previous user, then load this user's data from Supabase
+    clearUserStore();
+    dbSync.loadForUser(user.id);
   } else {
     dom.authBtn.hidden  = false;
     dom.userMenu.hidden = true;
+    document.getElementById('admin-panel').hidden = true;
+    // Wipe in-memory store so logged-out state shows nothing
+    clearUserStore();
   }
 };
+
+/** Reset favorites & bookmarks in memory and localStorage */
+function clearUserStore() {
+  store.favorites  = new Set();
+  store.bookmarks  = {};
+  store.save();
+  renderSidebarFavorites();
+  renderFavoritesGrid();
+  renderSidebarBookmarks();
+  renderBookmarksGrid();
+  updateProgress();
+}
 
 /* ─────────────────────────────────────────────
    Admin link
@@ -1148,7 +1386,15 @@ function escHtml(str) {
 /* ─────────────────────────────────────────────
    Bootstrap
 ───────────────────────────────────────────── */
+/* Called by admin.js after custom notes change — rebuilds PDF_MAP + search + sidebar */
+function refreshCustomNotes() {
+  loadCustomNotesIntoPdfMap();
+  searchItems = buildSearchIndex();
+  renderSidebar();
+}
+
 function init() {
+  loadCustomNotesIntoPdfMap();
   renderSidebar();
   renderWelcome();
   renderSidebarFavorites();
@@ -1158,8 +1404,8 @@ function init() {
   initOffline();
   registerServiceWorker();
   wireEvents();
-  // Expose for search.js / auth.js
-  window.App = { openPdf, SUBJECTS, PDF_MAP, SUBJECT_MAP };
+  // Expose for search.js / auth.js / admin.js
+  window.App = { openPdf, SUBJECTS, PDF_MAP, SUBJECT_MAP, refreshCustomNotes, renderSidebar };
 }
 
 if (document.readyState === 'loading') {

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Premium GATE CS preparation hub — subject-wise notes, annotations, bookmarks and more." />
   <meta name="theme-color" content="#0a0d14" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <!--
@@ -204,10 +205,9 @@
           </div>
         </div>
         <div class="viewer-toolbar-center">
-          <label for="page-input" class="sr-only">Current page</label>
-          <input id="page-input" type="number" class="page-input" min="1" value="1" aria-label="Page number" />
-          <span class="page-sep" aria-label="of">/</span>
-          <span id="page-total" class="page-total">—</span>
+          <!-- page-input kept hidden — still used internally for bookmark logic -->
+          <input id="page-input" type="number" class="page-input" min="1" value="1" aria-label="Page number" style="display:none" />
+          <span id="page-total" style="display:none"></span>
         </div>
         <div class="viewer-toolbar-right">
           <button class="icon-btn" id="annotate-btn" aria-label="Add annotation" title="Add note" aria-pressed="false">

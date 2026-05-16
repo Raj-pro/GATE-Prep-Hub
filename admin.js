@@ -192,8 +192,9 @@
       <!-- Users -->
       <section class="admin-section">
         <h2 class="admin-section-title">👥 Users <span class="admin-badge">${users.length}</span></h2>
-        <table class="admin-table">
-          <thead>
+        <div style="max-height:460px;overflow-y:auto;border-radius:8px;border:1px solid var(--border)">
+        <table class="admin-table" style="border:none;border-radius:0">
+          <thead style="position:sticky;top:0;z-index:1;background:var(--card)">
             <tr>
               <th>Name</th>
               <th>Email</th>
@@ -240,13 +241,15 @@
             `).join('') : '<tr><td colspan="6" style="color:var(--muted)">No users — run the schema.sql and sync query first</td></tr>'}
           </tbody>
         </table>
+        </div>
       </section>
 
       <!-- Login History -->
       <section class="admin-section">
         <h2 class="admin-section-title">🔐 Login History <span class="admin-badge">${loginLogs.length}</span></h2>
-        <table class="admin-table">
-          <thead><tr><th>Name</th><th>Email</th><th>Logged In At</th><th>Device</th></tr></thead>
+        <div style="max-height:460px;overflow-y:auto;border-radius:8px;border:1px solid var(--border)">
+        <table class="admin-table" style="border:none;border-radius:0">
+          <thead style="position:sticky;top:0;z-index:1;background:var(--card)"><tr><th>Name</th><th>Email</th><th>Logged In At</th><th>Device</th></tr></thead>
           <tbody>
             ${loginLogs.length ? loginLogs.map(l => `
               <tr>
@@ -258,13 +261,15 @@
             `).join('') : '<tr><td colspan="4" style="color:var(--muted)">No logins recorded yet</td></tr>'}
           </tbody>
         </table>
+        </div>
       </section>
 
       <!-- PDF Views -->
       <section class="admin-section">
         <h2 class="admin-section-title">📄 PDF View Log <span class="admin-badge">${pdfViews.length}</span></h2>
-        <table class="admin-table">
-          <thead><tr><th>Email</th><th>PDF Note</th><th>Subject</th><th>Viewed At</th></tr></thead>
+        <div style="max-height:460px;overflow-y:auto;border-radius:8px;border:1px solid var(--border)">
+        <table class="admin-table" style="border:none;border-radius:0">
+          <thead style="position:sticky;top:0;z-index:1;background:var(--card)"><tr><th>Email</th><th>PDF Note</th><th>Subject</th><th>Viewed At</th></tr></thead>
           <tbody>
             ${pdfViews.length ? pdfViews.map(v => `
               <tr>
@@ -276,6 +281,7 @@
             `).join('') : '<tr><td colspan="4" style="color:var(--muted)">No views yet</td></tr>'}
           </tbody>
         </table>
+        </div>
       </section>
 
       <!-- Subject Visibility -->
@@ -404,6 +410,7 @@
         });
         localStorage.setItem('gh_admin_hidden', JSON.stringify(newHidden));
         cb.nextElementSibling.textContent = cb.checked ? 'Visible' : 'Hidden';
+        window.App?.renderSidebar?.();
       });
     });
 
@@ -419,6 +426,7 @@
       const list  = JSON.parse(localStorage.getItem('gh_admin_custom') || '[]');
       list.push(entry);
       localStorage.setItem('gh_admin_custom', JSON.stringify(list));
+      window.App?.refreshCustomNotes?.();
       render();
     });
 
@@ -428,6 +436,7 @@
         const list = JSON.parse(localStorage.getItem('gh_admin_custom') || '[]');
         list.splice(parseInt(btn.dataset.idx, 10), 1);
         localStorage.setItem('gh_admin_custom', JSON.stringify(list));
+        window.App?.refreshCustomNotes?.();
         render();
       });
     });

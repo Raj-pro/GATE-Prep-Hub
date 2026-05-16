@@ -183,13 +183,7 @@ create policy "admins can read all pdf views"
   on public.pdf_views for select
   using (public.is_admin());
 
--- ─────────────────────────────────────────────────────────────────────
--- OPTIONAL — uncomment if you upgrade to "Auth + DB sync" later
--- ─────────────────────────────────────────────────────────────────────
-
-/*
-
--- ── Favorites ────────────────────────────────────────────────────────
+-- ── 7. Favorites ─────────────────────────────────────────────────────
 create table if not exists public.favorites (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references public.profiles (id) on delete cascade,
@@ -203,7 +197,7 @@ create policy "users manage own favorites"
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
--- ── Bookmarks (page-level) ───────────────────────────────────────────
+-- ── 8. Bookmarks (page-level) ────────────────────────────────────────
 create table if not exists public.bookmarks (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references public.profiles (id) on delete cascade,
@@ -217,34 +211,3 @@ create policy "users manage own bookmarks"
   on public.bookmarks for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
-
--- ── Annotations (text notes per PDF) ────────────────────────────────
-create table if not exists public.annotations (
-  id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references public.profiles (id) on delete cascade,
-  pdf_id     text not null,
-  page       integer not null check (page >= 1),
-  body       text not null,
-  created_at timestamptz not null default now()
-);
-alter table public.annotations enable row level security;
-create policy "users manage own annotations"
-  on public.annotations for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
--- ── PDF view history ─────────────────────────────────────────────────
-create table if not exists public.pdf_views (
-  id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references public.profiles (id) on delete cascade,
-  pdf_id     text not null,
-  viewed_at  timestamptz not null default now(),
-  unique (user_id, pdf_id)
-);
-alter table public.pdf_views enable row level security;
-create policy "users manage own view history"
-  on public.pdf_views for all
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-*/
