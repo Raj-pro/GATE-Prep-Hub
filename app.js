@@ -342,6 +342,8 @@ const dom = {
   progressWrap:     document.querySelector('[role="progressbar"]'),
   // loader
   pageLoader:       $('page-loader'),
+  // ad column (hidden for admins)
+  adCol:            $('ad-col'),
 };
 
 /* ─────────────────────────────────────────────
@@ -1298,6 +1300,12 @@ window.onAuthStateChange = function(user) {
     dom.userDropdownName.textContent = user.name || user.email;
     dom.adminBtn.hidden = !user.isAdmin;
 
+    // Hide ads for admin users; show for everyone else
+    if (dom.adCol) {
+      dom.adCol.hidden = user.isAdmin;
+      dom.app.classList.toggle('no-ads', user.isAdmin);
+    }
+
     // Only wipe + reload data if a different user is logging in.
     // On refresh with the same user, skip the wipe so data doesn't flash away.
     if (_lastAuthUserId !== user.id) {
@@ -1311,6 +1319,7 @@ window.onAuthStateChange = function(user) {
     dom.authBtn.hidden  = false;
     dom.userMenu.hidden = true;
     document.getElementById('admin-panel').hidden = true;
+    if (dom.adCol) { dom.adCol.hidden = false; dom.app.classList.remove('no-ads'); }
     clearUserStore();
   }
 };
