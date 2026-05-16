@@ -341,7 +341,7 @@ graph TB
   end
 
   subgraph BACKEND["Backend — Supabase (always on)"]
-    SB["Supabase Project\nytjkeafdqftjciprioon"]
+    SB["Supabase Project\n&lt;your-project-id&gt;"]
     PG2["PostgreSQL\nprofiles · login_logs · pdf_views"]
     RLS["Row Level Security\nUsers see own data\nAdmins see all"]
     SB --> PG2

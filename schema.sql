@@ -154,7 +154,10 @@ alter table public.login_logs enable row level security;
 
 create policy "users can insert own login log"
   on public.login_logs for insert
-  with check (auth.uid() = user_id);
+  with check (
+    auth.uid() = user_id
+    AND (email IS NULL OR email = auth.email())
+  );
 
 create policy "admins can read all login logs"
   on public.login_logs for select

@@ -47,5 +47,4 @@
     },
   });
 
-  console.debug('[Supabase] client ready →', url);
 })();

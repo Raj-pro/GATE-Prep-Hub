@@ -48,8 +48,16 @@
       id:      sbUser.id,
       email:   sbUser.email,
       name:    meta.name || sbUser.email?.split('@')[0] || 'User',
-      isAdmin: meta.is_admin === true,
+      isAdmin: false,   // resolved from profiles table — never from user_metadata
     };
+  }
+
+  /* Resolve admin status from the profiles table — never trust user_metadata for this. */
+  async function fetchIsAdmin(userId) {
+    try {
+      const { data } = await sb().from('profiles').select('is_admin').eq('id', userId).single();
+      return data?.is_admin === true;
+    } catch { return false; }
   }
 
   /* ── Current user (kept in sync by onAuthStateChange) ── */
@@ -203,12 +211,13 @@
     if (error) throw new Error(friendlyError(error));
     const user = toUser(data.user);
 
-    // Check if banned
-    const { data: profile } = await client.from('profiles').select('is_banned').eq('id', data.user.id).single();
+    // Check ban status and read admin flag in one query
+    const { data: profile } = await client.from('profiles').select('is_banned, is_admin').eq('id', data.user.id).single();
     if (profile?.is_banned) {
       await client.auth.signOut();
       throw new Error('Your account has been suspended. Contact support.');
     }
+    user.isAdmin = profile?.is_admin === true;
 
     // Log login event to Supabase (non-blocking)
     client.from('login_logs').insert({
@@ -268,13 +277,59 @@
     const params = new URLSearchParams(location.search);
     if (params.get('reset') !== '1') return;
     history.replaceState(null, '', location.pathname);
-    showToast('Enter your new password to complete the reset.', '', 5000);
+    // Supabase sets the session from the URL hash — user is now signed in
     openModal('login');
-    /*
-     * Supabase will have already set the session via the URL hash (#access_token=...).
-     * The user is now signed in. You can call supabase.auth.updateUser({ password: newPw })
-     * to let them set a new password. A dedicated "new password" form can be added here.
-     */
+    showNewPasswordForm();
+  }
+
+  /** Replace the login tab with a "set new password" form */
+  function showNewPasswordForm() {
+    if (!tabLogin) return;
+    tabLogin.innerHTML = `
+      <h2 class="modal-title">Set new password</h2>
+      <p class="modal-subtitle">Enter a new password for your account.</p>
+      <form id="new-pw-form" novalidate>
+        <div class="field-group">
+          <label for="new-pw-input" class="field-label">New Password</label>
+          <div class="password-wrap">
+            <input id="new-pw-input" type="password" class="field-input"
+              autocomplete="new-password" required placeholder="Min 8 characters" />
+            <button type="button" class="password-toggle" data-target="new-pw-input"
+              aria-label="Show password">👁</button>
+          </div>
+          <span class="field-error" id="new-pw-error" role="alert"></span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="new-pw-submit">Update Password</button>
+      </form>
+    `;
+    tabLogin.querySelector('.password-toggle')?.addEventListener('click', () => {
+      const input = document.getElementById('new-pw-input');
+      const btn   = tabLogin.querySelector('.password-toggle');
+      if (!input || !btn) return;
+      const isText = input.type === 'text';
+      input.type = isText ? 'password' : 'text';
+      btn.textContent = isText ? '👁' : '🙈';
+      btn.setAttribute('aria-label', isText ? 'Show password' : 'Hide password');
+    });
+    document.getElementById('new-pw-form')?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const pw    = document.getElementById('new-pw-input').value;
+      const errEl = document.getElementById('new-pw-error');
+      const pwErr = validatePassword(pw);
+      if (pwErr) { if (errEl) errEl.textContent = pwErr; return; }
+      const submitBtn = document.getElementById('new-pw-submit');
+      setLoading(submitBtn, true, 'Update Password');
+      try {
+        const { error } = await sb().auth.updateUser({ password: pw });
+        if (error) throw new Error(friendlyError(error));
+        showToast('Password updated. You are now signed in.', 'success', 5000);
+        closeModal();
+      } catch (err) {
+        if (errEl) errEl.textContent = err.message;
+      } finally {
+        setLoading(submitBtn, false, 'Update Password');
+      }
+    });
   }
 
   /* ─────────────────────────────────────────────
@@ -301,8 +356,9 @@
     if (!client) return;
 
     /* onAuthStateChange fires for existing session on load */
-    client.auth.onAuthStateChange((event, session) => {
-      const user = session?.user ? toUser(session.user) : null;
+    client.auth.onAuthStateChange(async (event, session) => {
+      let user = session?.user ? toUser(session.user) : null;
+      if (user) user.isAdmin = await fetchIsAdmin(user.id);
       notifyApp(user);
 
       if (event === 'SIGNED_IN') {
@@ -323,7 +379,9 @@
     /* Also call getSession() once to populate state before the listener fires */
     const { data } = await client.auth.getSession();
     if (data.session?.user) {
-      notifyApp(toUser(data.session.user));
+      const user = toUser(data.session.user);
+      user.isAdmin = await fetchIsAdmin(user.id);
+      notifyApp(user);
     }
   }
 
