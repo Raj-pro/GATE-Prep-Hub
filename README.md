@@ -1,5 +1,7 @@
 # 📚 GATE Prep Hub
 
+**Live site:** https://gate-prep-hub.vercel.app/
+
 A **Progressive Web App (PWA)** for GATE CS exam preparation — 49 subject-wise PDF notes with authentication, bookmarks, annotations, progress tracking, and a full admin panel.
 
 ---
