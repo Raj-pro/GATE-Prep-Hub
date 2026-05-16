@@ -63,9 +63,35 @@
   /* ── Current user (kept in sync by onAuthStateChange) ── */
   let currentUser = null;
 
+  /* ── Cache key for instant UI restore on refresh ── */
+  const USER_CACHE_KEY = 'gh_user_cache';
+
+  function saveUserCache(user) {
+    if (!user) { localStorage.removeItem(USER_CACHE_KEY); return; }
+    localStorage.setItem(USER_CACHE_KEY, JSON.stringify({
+      id:      user.id,
+      name:    user.name,
+      email:   user.email,
+      isAdmin: user.isAdmin || false,
+    }));
+  }
+
+  /** Read cached user synchronously — used for instant UI restore before Supabase verifies */
+  function readUserCache() {
+    try { return JSON.parse(localStorage.getItem(USER_CACHE_KEY) || 'null'); }
+    catch { return null; }
+  }
+
   /* ── Notify app.js whenever auth state changes ── */
   function notifyApp(user) {
     currentUser = user;
+    // Only clear the cache when explicitly logging out (user === null).
+    // When user is valid, always save/update the cache.
+    if (user) {
+      saveUserCache(user);
+    } else {
+      localStorage.removeItem(USER_CACHE_KEY);
+    }
     if (typeof window.onAuthStateChange === 'function') {
       window.onAuthStateChange(user);
     }
@@ -263,12 +289,31 @@
     if (error) throw new Error(friendlyError(error));
   }
 
+  // Flag: prevents getSession() / onAuthStateChange callbacks from
+  // re-logging the user in while sign-out is in progress.
+  let _signingOut = false;
+
   /** Sign out */
   async function signOut() {
+    _signingOut = true;
+
+    // Wipe cache synchronously — before any async work
+    localStorage.removeItem(USER_CACHE_KEY);
+    localStorage.removeItem('gh_favorites');
+    localStorage.removeItem('gh_bookmarks');
+
+    // Invalidate Supabase session
     const client = sb();
     if (client) await client.auth.signOut();
+
+    // Update app state + UI
+    notifyApp(null);
     window.Analytics?.track('auth_logout');
-    location.reload();
+
+    _signingOut = false;
+
+    // Redirect to landing page
+    window.location.href = '/';
   }
 
   /** Handle ?reset=1 return from password-reset email */
@@ -352,35 +397,58 @@
   ───────────────────────────────────────────── */
   async function restoreSession() {
     const client = sb();
+
+    // Step 1: Restore from localStorage cache immediately (synchronous, instant UI)
+    const cached = readUserCache();
+    if (cached) {
+      currentUser = cached; // set silently — inline script already updated the UI
+    }
+
+    // Step 2: If Supabase client is unavailable (env vars not set), stay with cache
     if (!client) return;
 
-    /* onAuthStateChange fires for existing session on load */
+    // Step 3: Listen for auth events
+    // RULE: only SIGNED_OUT should ever log the user out.
+    // Every other event (INITIAL_SESSION, TOKEN_REFRESHED, USER_UPDATED) with a valid
+    // session updates the user. Without a session, we do nothing — we trust the cache.
     client.auth.onAuthStateChange(async (event, session) => {
-      let user = session?.user ? toUser(session.user) : null;
-      if (user) user.isAdmin = await fetchIsAdmin(user.id);
-      notifyApp(user);
+      // Skip all callbacks while sign-out is in progress — prevents re-login race condition
+      if (_signingOut) return;
 
-      if (event === 'SIGNED_IN') {
-        window.Analytics?.track('auth_session_restored', { userId: user?.id });
-      }
       if (event === 'SIGNED_OUT') {
+        // Explicit logout — wipe everything
+        notifyApp(null);
         window.Analytics?.track('auth_signed_out');
+        return;
       }
-      if (event === 'TOKEN_REFRESHED') {
-        console.debug('[Auth] token refreshed');
+
+      if (session?.user) {
+        // Valid session — update user info
+        const user = toUser(session.user);
+        user.isAdmin = await fetchIsAdmin(user.id);
+        notifyApp(user);
+        if (event === 'SIGNED_IN')       window.Analytics?.track('auth_login_confirmed', { userId: user.id });
+        if (event === 'TOKEN_REFRESHED') console.debug('[Auth] token refreshed');
+        if (event === 'USER_UPDATED')    window.Analytics?.track('auth_user_updated', { userId: user.id });
       }
-      if (event === 'USER_UPDATED') {
-        /* e.g. after admin updates user_metadata via Supabase Dashboard */
-        window.Analytics?.track('auth_user_updated', { userId: user?.id });
-      }
+      // If session is null for any other event — do nothing, keep cached user.
+      // Supabase fires INITIAL_SESSION briefly with null before reading localStorage.
     });
 
-    /* Also call getSession() once to populate state before the listener fires */
-    const { data } = await client.auth.getSession();
-    if (data.session?.user) {
-      const user = toUser(data.session.user);
-      user.isAdmin = await fetchIsAdmin(user.id);
-      notifyApp(user);
+    // Step 4: Confirm session with Supabase in background.
+    // If valid → update user. If null → do NOT logout (trust the cache + autoRefreshToken).
+    try {
+      const { data } = await client.auth.getSession();
+      if (!_signingOut && data.session?.user) {
+        const user = toUser(data.session.user);
+        user.isAdmin = await fetchIsAdmin(user.id);
+        notifyApp(user);
+      }
+      // No else — getSession returning null is NOT a logout signal.
+      // The SIGNED_OUT event is the only legitimate logout trigger.
+    } catch (e) {
+      console.warn('[Auth] getSession failed:', e.message);
+      // Network error — keep cached user, don't logout
     }
   }
 
@@ -505,9 +573,11 @@
     });
 
     /* Logout from user menu */
-    $('logout-btn')?.addEventListener('click', () => {
+    $('logout-btn')?.addEventListener('click', async () => {
       const dd = $('user-dropdown'); if (dd) dd.hidden = true;
-      signOut();
+      const btn = $('logout-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Signing out…'; }
+      await signOut();
     });
   }
 

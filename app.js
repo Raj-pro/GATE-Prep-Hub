@@ -527,6 +527,7 @@ function openPdf(pdfId) {
 
   // Update toolbar
   showScreen('viewer');
+  closeSidebarOnMobile(); // auto-close sidebar on mobile when PDF opens
   dom.viewerToolbar.removeAttribute('hidden');
   dom.viewerSubjectName.textContent = sub.name;
   dom.viewerPdfName.textContent     = entry.name;
@@ -1019,6 +1020,15 @@ function toggleSidebar() {
   }
 }
 
+function closeSidebarOnMobile() {
+  if (window.innerWidth < 680 && state.sidebarOpen) {
+    state.sidebarOpen = false;
+    dom.app.classList.remove('sidebar-open');
+    dom.app.classList.add('sidebar-collapsed');
+    dom.sidebarToggle.setAttribute('aria-expanded', 'false');
+  }
+}
+
 /* ─────────────────────────────────────────────
    User menu
 ───────────────────────────────────────────── */
@@ -1261,16 +1271,16 @@ function wireEvents() {
     renderProfile();
   });
 
-  // Logout
-  dom.logoutBtn?.addEventListener('click', () => { toggleUserDropdown(false); window.Auth?.signOut(); });
+  // Logout is handled by auth.js (which redirects to / after sign out)
 
   // page-input is now hidden — no listeners needed
 
-  // Mobile: close sidebar on backdrop click
+  // Mobile: tap outside sidebar to close it
   dom.app.addEventListener('click', e => {
-    if (window.innerWidth < 680 && dom.app.classList.contains('sidebar-open') && !dom.sidebar.contains(e.target) && e.target !== dom.sidebarToggle) {
-      dom.app.classList.remove('sidebar-open');
-      state.sidebarOpen = false;
+    if (window.innerWidth < 680 && dom.app.classList.contains('sidebar-open')) {
+      if (!dom.sidebar.contains(e.target) && e.target !== dom.sidebarToggle) {
+        closeSidebarOnMobile();
+      }
     }
   });
 }
@@ -1278,6 +1288,8 @@ function wireEvents() {
 /* ─────────────────────────────────────────────
    Auth state listener (called from auth.js)
 ───────────────────────────────────────────── */
+let _lastAuthUserId = null; // track last known user to avoid duplicate loads
+
 window.onAuthStateChange = function(user) {
   if (user) {
     dom.authBtn.hidden     = true;
@@ -1285,14 +1297,20 @@ window.onAuthStateChange = function(user) {
     dom.userAvatarInit.textContent = (user.name || user.email || 'U')[0].toUpperCase();
     dom.userDropdownName.textContent = user.name || user.email;
     dom.adminBtn.hidden = !user.isAdmin;
-    // Clear any leftover data from a previous user, then load this user's data from Supabase
-    clearUserStore();
-    dbSync.loadForUser(user.id);
+
+    // Only wipe + reload data if a different user is logging in.
+    // On refresh with the same user, skip the wipe so data doesn't flash away.
+    if (_lastAuthUserId !== user.id) {
+      if (_lastAuthUserId !== null) clearUserStore(); // different user — wipe previous
+      _lastAuthUserId = user.id;
+      dbSync.loadForUser(user.id);
+    }
   } else {
+    // Explicit logout — wipe everything
+    _lastAuthUserId = null;
     dom.authBtn.hidden  = false;
     dom.userMenu.hidden = true;
     document.getElementById('admin-panel').hidden = true;
-    // Wipe in-memory store so logged-out state shows nothing
     clearUserStore();
   }
 };
@@ -1417,6 +1435,11 @@ function init() {
   wireEvents();
   // Expose for search.js / auth.js / admin.js
   window.App = { openPdf, SUBJECTS, PDF_MAP, SUBJECT_MAP, refreshCustomNotes, renderSidebar };
+
+  // Bootstrap auth state — in case auth.js already restored the session
+  // before window.onAuthStateChange was set (timing gap between deferred scripts)
+  const existingUser = window.Auth?.user;
+  if (existingUser) window.onAuthStateChange(existingUser);
 }
 
 if (document.readyState === 'loading') {

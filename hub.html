@@ -310,6 +310,29 @@
   <!-- Loading indicator -->
   <div class="page-loader" id="page-loader" aria-hidden="true"></div>
 
+  <!-- Instant auth UI restore — runs synchronously before any other script.
+       Reads gh_user_cache (set on login, cleared on logout) so the user
+       never sees a flash of logged-out state on refresh. -->
+  <script>
+    (function () {
+      try {
+        var cached = JSON.parse(localStorage.getItem('gh_user_cache') || 'null');
+        if (cached && cached.id) {
+          var authBtn  = document.getElementById('auth-btn');
+          var userMenu = document.getElementById('user-menu');
+          var initials = document.getElementById('user-avatar-initials');
+          var nameEl   = document.getElementById('user-dropdown-name');
+          var adminBtn = document.getElementById('admin-btn');
+          if (authBtn)  authBtn.hidden  = true;
+          if (userMenu) userMenu.hidden = false;
+          if (initials) initials.textContent = (cached.name || cached.email || 'U')[0].toUpperCase();
+          if (nameEl)   nameEl.textContent   = cached.name || cached.email;
+          if (adminBtn) adminBtn.hidden = !cached.isAdmin;
+        }
+      } catch (_) {}
+    })();
+  </script>
+
   <!-- Scripts — config first, then SDK, then app modules -->
   <script src="config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
