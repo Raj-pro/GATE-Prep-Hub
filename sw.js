@@ -25,6 +25,9 @@ const PRECACHE_ASSETS = [
   '/manifest.json',
 ];
 
+/* Never cache these — they change per-deploy or contain credentials */
+const NEVER_CACHE = new Set(['/config.js', '/sw.js']);
+
 /* ── Install: precache static assets ── */
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -56,6 +59,9 @@ self.addEventListener('fetch', event => {
 
   // Skip Stripe / analytics / external
   if (!url.hostname.includes('localhost') && url.hostname !== self.location.hostname) return;
+
+  // Never cache config.js or sw.js — they must always be fresh
+  if (NEVER_CACHE.has(url.pathname)) return;
 
   // PDFs → network-first (so updated files are fetched fresh, but cached for offline)
   if (url.pathname.endsWith('.pdf')) {

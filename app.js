@@ -1022,7 +1022,7 @@ function wireEvents() {
   });
 
   // Logout
-  dom.logoutBtn?.addEventListener('click', () => { toggleUserDropdown(false); window.Auth?.logout(); });
+  dom.logoutBtn?.addEventListener('click', () => { toggleUserDropdown(false); window.Auth?.signOut(); });
 
   // Page input → jump page
   dom.pageInput.addEventListener('change', () => {
