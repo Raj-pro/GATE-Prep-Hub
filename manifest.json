@@ -1,0 +1,38 @@
+{
+  "name": "GATE Prep Hub",
+  "short_name": "GateHub",
+  "description": "Premium GATE CS preparation notes — subject-wise, annotated, bookmarked.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0d14",
+  "theme_color": "#0a0d14",
+  "orientation": "any",
+  "lang": "en",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236382ff'/><text y='.9em' font-size='72' x='14'>📚</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Algorithms",
+      "short_name": "Algo",
+      "description": "Jump to Algorithms notes",
+      "url": "/?subject=s02",
+      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>", "sizes": "any" }]
+    },
+    {
+      "name": "Operating Systems",
+      "short_name": "OS",
+      "description": "Jump to OS notes",
+      "url": "/?subject=s05",
+      "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥</text></svg>", "sizes": "any" }]
+    }
+  ]
+}

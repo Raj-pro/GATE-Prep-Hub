@@ -1,0 +1,14 @@
+# Secrets — never deploy
+.env
+
+# Generated at build time — Vercel runs generate-config.js to create this
+config.js
+
+# Dev tooling
+generate-config.sh
+node_modules/
+.DS_Store
+
+# Supabase local dev artefacts
+supabase/.temp/
+supabase/.branches/

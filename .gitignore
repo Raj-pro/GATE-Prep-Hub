@@ -1,0 +1,25 @@
+# ── Secrets — never commit these ──────────────
+.env
+config.js
+
+# ── PDFs — hosted on Supabase Storage, not in git ──
+# 1.7 GB total; multiple files exceed GitHub's 100 MB limit.
+# Run: node upload-pdfs.js   (once, before deploying)
+gate book - Copy/
+
+# ── macOS ──────────────────────────────────────
+.DS_Store
+
+# ── Editor ─────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Node (if you ever add a build step) ────────
+node_modules/
+npm-debug.log*
+
+# ── Supabase CLI local state ────────────────────
+supabase/.temp/
+supabase/.branches/

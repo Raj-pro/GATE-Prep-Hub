@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>GATE Prep Hub — Architecture</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0a0d14;
+    color: #e8eaf6;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    padding: 32px;
+    min-height: 100vh;
+  }
+  h1 {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: linear-gradient(120deg, #fff 30%, #6382ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 32px;
+  }
+
+  /* ── Zones ── */
+  .zone {
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .zone-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    opacity: .7;
+  }
+  .zone-config   { border: 1px solid rgba(99,130,255,.3);  background: rgba(99,130,255,.05); }
+  .zone-browser  { border: 1px solid rgba(162,89,255,.3);  background: rgba(162,89,255,.05); }
+  .zone-external { border: 1px solid rgba(0,212,170,.3);   background: rgba(0,212,170,.05);  }
+
+  /* ── Rows / cols ── */
+  .row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+  .row:last-child { margin-bottom: 0; }
+
+  /* ── Boxes ── */
+  .box {
+    border-radius: 10px;
+    padding: 12px 14px;
+    flex: 1;
+    min-width: 130px;
+  }
+  .box-title {
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .box-body { font-size: 11px; line-height: 1.7; color: #8892b0; }
+  .box-body span { display: block; }
+
+  /* Colour variants */
+  .blue   { background: rgba(99,130,255,.12);  border: 1px solid rgba(99,130,255,.25); }
+  .purple { background: rgba(162,89,255,.12);  border: 1px solid rgba(162,89,255,.25); }
+  .teal   { background: rgba(0,212,170,.12);   border: 1px solid rgba(0,212,170,.25);  }
+  .orange { background: rgba(255,159,67,.12);  border: 1px solid rgba(255,159,67,.25); }
+  .red    { background: rgba(255,107,107,.12); border: 1px solid rgba(255,107,107,.25);}
+  .yellow { background: rgba(255,211,42,.1);   border: 1px solid rgba(255,211,42,.2);  }
+  .grey   { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);}
+
+  /* ── Arrows between zones ── */
+  .arrow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    margin: 4px 0 16px;
+    flex-wrap: wrap;
+  }
+  .arrow-item { text-align: center; }
+  .arrow-label { font-size: 10px; color: #6b7a99; margin-bottom: 3px; }
+  .arrow-sym { font-size: 18px; color: #6382ff; }
+
+  /* ── Load-order strip ── */
+  .load-order {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .load-step {
+    font-size: 11px;
+    background: rgba(99,130,255,.15);
+    border: 1px solid rgba(99,130,255,.3);
+    border-radius: 6px;
+    padding: 3px 8px;
+    white-space: nowrap;
+  }
+  .load-arrow { color: #6382ff; font-size: 13px; }
+
+  /* ── UI layout preview ── */
+  .ui-preview {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 6px;
+    background: rgba(255,255,255,.02);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 10px;
+    padding: 10px;
+    min-height: 160px;
+  }
+  .ui-topbar {
+    background: rgba(99,130,255,.1);
+    border: 1px solid rgba(99,130,255,.2);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .ui-body { display: grid; grid-template-columns: 150px 1fr; gap: 6px; }
+  .ui-sidebar {
+    background: rgba(162,89,255,.08);
+    border: 1px solid rgba(162,89,255,.18);
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 10px;
+    color: #8892b0;
+    line-height: 1.9;
+  }
+  .ui-main {
+    background: rgba(0,212,170,.06);
+    border: 1px solid rgba(0,212,170,.15);
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 10px;
+    color: #8892b0;
+    line-height: 1.9;
+  }
+
+  /* ── External services row ── */
+  .ext-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 700px) {
+    .ext-row { grid-template-columns: 1fr; }
+    .ui-body  { grid-template-columns: 1fr; }
+    .row      { flex-direction: column; }
+  }
+
+  /* ── Data flow line ── */
+  .flow {
+    border-top: 1px dashed rgba(99,130,255,.25);
+    margin: 16px 0;
+    position: relative;
+    text-align: center;
+  }
+  .flow-label {
+    display: inline-block;
+    background: #0a0d14;
+    padding: 0 10px;
+    font-size: 10px;
+    color: #6b7a99;
+    transform: translateY(-50%);
+  }
+
+  .chip {
+    display: inline-block;
+    background: rgba(99,130,255,.15);
+    border: 1px solid rgba(99,130,255,.3);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 10px;
+    margin: 1px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<h1>📚 GATE Prep Hub — Architecture</h1>
+
+<!-- ── CONFIG PIPELINE ── -->
+<div class="zone zone-config">
+  <div class="zone-label">⚙️ Config Pipeline (Developer Machine)</div>
+  <div class="row">
+    <div class="box grey" style="max-width:180px">
+      <div class="box-title">📄 .env</div>
+      <div class="box-body">
+        <span>SUPABASE_URL</span>
+        <span>SUPABASE_ANON_KEY</span>
+        <span>GA_MEASUREMENT_ID</span>
+        <span style="margin-top:4px;color:#ff4d6d">⚠ Never committed</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:20px;color:#6382ff">→</div>
+    <div class="box grey" style="max-width:220px">
+      <div class="box-title">🛠 generate-config.js</div>
+      <div class="box-body">
+        <span>Reads .env line by line</span>
+        <span>Writes config.js</span>
+        <span>Run: node generate-config.js</span>
+        <span>Also: ./generate-config.sh</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:20px;color:#6382ff">→</div>
+    <div class="box grey" style="max-width:200px">
+      <div class="box-title">🌐 config.js</div>
+      <div class="box-body">
+        <span>Sets window.ENV = {"{...}"}</span>
+        <span>Browser-readable</span>
+        <span>Loaded first, no defer</span>
+        <span style="margin-top:4px;color:#ff4d6d">⚠ Gitignored</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow-row">
+  <div class="arrow-item">
+    <div class="arrow-label">python3 -m http.server 8080</div>
+    <div class="arrow-sym">↓</div>
+  </div>
+</div>
+
+<!-- ── BROWSER ── -->
+<div class="zone zone-browser">
+  <div class="zone-label">🖥 Browser Layer</div>
+
+  <!-- Script load order -->
+  <div class="load-order">
+    <span style="font-size:10px;color:#6b7a99;margin-right:4px">Load order:</span>
+    <span class="load-step">config.js → window.ENV</span>
+    <span class="load-arrow">›</span>
+    <span class="load-step">supabase CDN → createClient</span>
+    <span class="load-arrow">›</span>
+    <span class="load-step">supabase.js → window.supabase</span>
+    <span class="load-arrow">›</span>
+    <span class="load-step">analytics.js → window.Analytics</span>
+    <span class="load-arrow">›</span>
+    <span class="load-step">search.js → window.FuzzySearch</span>
+    <span class="load-arrow">›</span>
+    <span class="load-step">auth.js → window.Auth</span>
+    <span class="load-arrow">›</span>
+    <span class="load-step">admin.js → window.Admin</span>
+    <span class="load-arrow">›</span>
+    <span class="load-step">app.js → window.App</span>
+  </div>
+
+  <!-- UI layout -->
+  <div class="ui-preview" style="margin-bottom:14px">
+    <div class="ui-topbar">
+      <span>📚 GATE Prep HUB</span>
+      <span style="flex:1;background:rgba(255,255,255,.06);border-radius:4px;padding:2px 8px">🔍 Search (FuzzySearch / trigram)</span>
+      <span>♡</span><span>🔖</span><span>|</span><span>Sign In</span>
+    </div>
+    <div class="ui-body">
+      <div class="ui-sidebar">
+        <div style="font-weight:700;color:#a259ff;margin-bottom:4px">SUBJECTS</div>
+        ▸ C &amp; Data Structures<br/>
+        ▸ Algorithms<br/>
+        ▸ Theory of Computation<br/>
+        ▸ Compiler Design<br/>
+        ▸ Operating Systems<br/>
+        ▸ DBMS<br/>
+        ▸ COA<br/>
+        ▸ Digital Logic<br/>
+        ▸ Computer Networks<br/>
+        ▸ Discrete Math<br/>
+        ▸ Engg. Mathematics<br/>
+        ▸ General Ability<br/>
+        <div style="margin-top:6px;color:#6382ff">── Favorites<br/>── Bookmarks</div>
+        <div style="margin-top:8px;background:rgba(99,130,255,.15);border-radius:4px;padding:4px 6px">
+          Progress: 0 / 49
+        </div>
+      </div>
+      <div class="ui-main">
+        <div style="font-weight:700;color:#00d4aa;margin-bottom:4px">MAIN PANEL</div>
+        <div style="background:rgba(255,255,255,.04);border-radius:4px;padding:4px 6px;margin-bottom:6px">
+          PDF Toolbar: breadcrumb · page · ✏ annotate · 🔖 bookmark · ♡ fave · ↗ open · ⬇ dl
+        </div>
+        <div style="background:rgba(255,255,255,.04);border-radius:4px;padding:4px 6px;margin-bottom:6px;min-height:48px">
+          &lt;iframe&gt; PDF viewer — or — fallback (open/download buttons)
+        </div>
+        <div style="background:rgba(162,89,255,.08);border-radius:4px;padding:4px 6px">
+          Annotation panel (slide-in): textarea + page + saved notes list
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Modules -->
+  <div class="row">
+    <div class="box blue">
+      <div class="box-title">🎮 app.js</div>
+      <div class="box-body">
+        <span>State: currentPdfId, sidebarOpen</span>
+        <span>openPdf() → encode path → iframe</span>
+        <span>Favorites ↔ localStorage</span>
+        <span>Bookmarks ↔ localStorage</span>
+        <span>Annotations ↔ localStorage</span>
+        <span>Progress tracker</span>
+        <span>Keyboard nav ( / , Esc, ↑↓ )</span>
+        <span>Offline detection banner</span>
+        <span>SW registration</span>
+      </div>
+    </div>
+    <div class="box purple">
+      <div class="box-title">🔍 search.js</div>
+      <div class="box-body">
+        <span>Trigram index at startup</span>
+        <span>Jaccard similarity score</span>
+        <span>+boost: substring, word boundary</span>
+        <span>Returns top 10 ranked results</span>
+        <span>highlight() wraps match in &lt;mark&gt;</span>
+        <span>Debounced 120 ms input</span>
+        <span>Arrow keys + Enter navigation</span>
+      </div>
+    </div>
+    <div class="box teal">
+      <div class="box-title">🔐 auth.js</div>
+      <div class="box-body">
+        <span>supabase.auth.signInWithPassword()</span>
+        <span>supabase.auth.signUp() + name meta</span>
+        <span>supabase.auth.signOut()</span>
+        <span>supabase.auth.resetPasswordForEmail()</span>
+        <span>onAuthStateChange() listener</span>
+        <span>Email confirm flow</span>
+        <span>Focus trap in modal</span>
+        <span>Password strength meter</span>
+      </div>
+    </div>
+    <div class="box orange">
+      <div class="box-title">🔧 admin.js</div>
+      <div class="box-body">
+        <span>Password-protected panel</span>
+        <span>Toggle subject visibility</span>
+        <span>Add custom PDF entries</span>
+        <span>Event log table (last 30)</span>
+        <span>Usage stats (opens, logins)</span>
+        <span>Clear all local data</span>
+      </div>
+    </div>
+    <div class="box red">
+      <div class="box-title">📊 analytics.js</div>
+      <div class="box-body">
+        <span>GA4 gtag() wrapper</span>
+        <span>Respects Do Not Track</span>
+        <span>Event queue until GA loads</span>
+        <span>Persists 200 events locally</span>
+        <span>Anonymous session ID</span>
+      </div>
+    </div>
+    <div class="box yellow">
+      <div class="box-title">⚡ sw.js</div>
+      <div class="box-body">
+        <span>Precaches: HTML, CSS, JS</span>
+        <span>Cache-first: static assets</span>
+        <span>Network-first: PDFs (&lt;50 MB)</span>
+        <span>Offline fallback page</span>
+        <span>Cache versioning (v1)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow-row">
+  <div class="arrow-item"><div class="arrow-label">reads/writes</div><div class="arrow-sym">↓</div></div>
+  <div class="arrow-item"><div class="arrow-label">loads via &lt;iframe&gt;</div><div class="arrow-sym">↓</div></div>
+  <div class="arrow-item"><div class="arrow-label">Auth API calls</div><div class="arrow-sym">↓</div></div>
+</div>
+
+<!-- ── EXTERNAL SERVICES ── -->
+<div class="zone zone-external">
+  <div class="zone-label">☁️ External / Storage</div>
+  <div class="ext-row">
+
+    <div class="box grey">
+      <div class="box-title">💾 localStorage</div>
+      <div class="box-body">
+        <div style="margin-bottom:6px">
+          <span class="chip">gh_favorites</span>
+          <span class="chip">gh_bookmarks</span>
+          <span class="chip">gh_annotations</span>
+          <span class="chip">gh_viewed</span>
+          <span class="chip">gh_event_log</span>
+          <span class="chip">gh_admin_hidden</span>
+          <span class="chip">gh_admin_custom</span>
+          <span class="chip">gh_user (Supabase session)</span>
+        </div>
+        <span>All client-side persistence</span>
+        <span>No server round-trips</span>
+        <span>Supabase SDK also uses it for JWT</span>
+      </div>
+    </div>
+
+    <div class="box grey">
+      <div class="box-title">📁 PDF Files (disk)</div>
+      <div class="box-body">
+        <span>gate book - Copy/</span>
+        <span>├─ 01_C_&amp;_Data_Structure_Notes/ (5)</span>
+        <span>├─ 02_Algorithm_Notes/ (4)</span>
+        <span>├─ 03_Theory_of_Computation/ (5)</span>
+        <span>├─ 04_Compiler_Design/ (4)</span>
+        <span>├─ 05_Operating_System/ (5)</span>
+        <span>├─ 06_DBMS_Notes/ (4)</span>
+        <span>├─ 07_COA_Notes/ (6)</span>
+        <span>├─ 08_Digital_Logic/ (6)</span>
+        <span>├─ 09_Computer_Network/ (4)</span>
+        <span>├─ 10_Discrete_Math/ (4)</span>
+        <span>├─ 11_Engg_Mathematics/ (2)</span>
+        <span>└─ 12_General_Ability/ (5)</span>
+        <span style="margin-top:6px;color:#00d4aa;font-weight:700">Total: 49 PDFs</span>
+      </div>
+    </div>
+
+    <div class="box teal">
+      <div class="box-title" style="flex-direction:column;align-items:flex-start;gap:2px">
+        <span>🟢 Supabase</span>
+        <span style="font-size:9px;color:#8892b0;font-weight:400">ytjkeafdqftjciprioon.supabase.co</span>
+      </div>
+      <div class="box-body">
+        <div style="background:rgba(0,212,170,.1);border-radius:6px;padding:6px 8px;margin-bottom:8px">
+          <div style="font-weight:700;color:#00d4aa;margin-bottom:3px">Auth Service</div>
+          <span>email + password</span>
+          <span>JWT access tokens</span>
+          <span>user_metadata: name, is_admin</span>
+          <span>Auto session refresh</span>
+          <span>resetPasswordForEmail()</span>
+        </div>
+        <div style="background:rgba(99,130,255,.1);border-radius:6px;padding:6px 8px">
+          <div style="font-weight:700;color:#6382ff;margin-bottom:3px">Postgres DB</div>
+          <span>profiles table</span>
+          <span>  ─ id (uuid, FK → auth.users)</span>
+          <span>  ─ name (text)</span>
+          <span>  ─ is_admin (boolean)</span>
+          <span>  ─ created_at / updated_at</span>
+          <span>RLS: users see own row only</span>
+          <span>Trigger: auto-create on signup</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div style="margin-top:24px;text-align:center;font-size:11px;color:#6b7a99">
+  GATE Prep Hub · Vanilla JS · Supabase Auth · localStorage persistence · Service Worker PWA
+</div>
+
+</body>
+</html>
