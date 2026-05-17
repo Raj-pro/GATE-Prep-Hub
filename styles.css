@@ -52,7 +52,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
   -webkit-font-smoothing: antialiased;
 }
 a { color: var(--accent); text-decoration: none; }
@@ -1197,8 +1197,11 @@ body::before {
     box-shadow: var(--shadow-lg);
     transition: transform var(--trans);
   }
-  .app.sidebar-open .sidebar    { transform: translateX(0); }
-  .app.sidebar-collapsed .sidebar { transform: translateX(-100%); }
+  .app.sidebar-open .sidebar      { transform: translateX(0); }
+  /* Prevent desktop collapsed rules (width:0, grid:0 1fr) from breaking the mobile drawer */
+  .app.sidebar-collapsed          { grid-template-columns: 1fr; }
+  .app.sidebar-collapsed .sidebar { width: 280px; transform: translateX(-100%); border-right: 1px solid var(--border); }
+  .sidebar-nav { -webkit-overflow-scrolling: touch; overflow-y: auto; }
 
   /* Backdrop when sidebar is open */
   .app.sidebar-open::after {
@@ -1256,7 +1259,7 @@ body::before {
   }
   /* Reset to flex flow (not absolute) — main is flex column */
   .main { display: flex; flex-direction: column; }
-  .viewer-area { position: relative; flex: 1; min-height: 0; }
+  .viewer-area { position: relative; flex: 1; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; }
   .pdf-frame   { flex: 1; min-height: 0; height: 100%; }
 
   /* Welcome screen */

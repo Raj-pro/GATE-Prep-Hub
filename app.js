@@ -188,19 +188,20 @@ const store = {
 };
 
 /* ─────────────────────────────────────────────
-   Supabase sync — favorites & bookmarks
+   Supabase sync — favorites, bookmarks & annotations
 ───────────────────────────────────────────── */
 const dbSync = {
   _sb() { return (window.supabase?.from) ? window.supabase : null; },
 
-  /** On login: fetch user's favorites + bookmarks from Supabase and merge into store */
+  /** On login: fetch user's favorites, bookmarks & annotations from Supabase and merge into store */
   async loadForUser(userId) {
     const sb = this._sb();
     if (!sb || !userId) return;
     try {
-      const [favRes, bmRes] = await Promise.all([
+      const [favRes, bmRes, annotRes] = await Promise.all([
         sb.from('favorites').select('pdf_id').eq('user_id', userId),
         sb.from('bookmarks').select('pdf_id, page, created_at').eq('user_id', userId),
+        sb.from('annotations').select('pdf_id, page, text, created_at').eq('user_id', userId),
       ]);
 
       // Merge favorites
@@ -215,6 +216,20 @@ const dbSync = {
           if (!store.bookmarks[r.pdf_id].find(b => b.page === r.page)) {
             store.bookmarks[r.pdf_id].push({ page: r.page, addedAt: r.created_at });
           }
+        });
+      }
+
+      // Merge annotations (server wins for new entries, keep any local-only ones too)
+      if (annotRes.data) {
+        annotRes.data.forEach(r => {
+          if (!store.annotations[r.pdf_id]) store.annotations[r.pdf_id] = [];
+          if (!store.annotations[r.pdf_id].find(a => a.createdAt === r.created_at)) {
+            store.annotations[r.pdf_id].push({ text: r.text, page: r.page, createdAt: r.created_at });
+          }
+        });
+        // Keep newest-first order
+        Object.keys(store.annotations).forEach(pid => {
+          store.annotations[pid].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         });
       }
 
@@ -264,6 +279,32 @@ const dbSync = {
       }
     } catch (e) {
       console.warn('[dbSync] syncBookmark failed:', e);
+    }
+  },
+
+  /** Insert a new annotation row */
+  async syncAnnotation(userId, pdfId, text, page, createdAt) {
+    const sb = this._sb();
+    if (!sb || !userId) return;
+    try {
+      await sb.from('annotations').upsert(
+        { user_id: userId, pdf_id: pdfId, text, page, created_at: createdAt },
+        { onConflict: 'user_id,pdf_id,created_at' }
+      );
+    } catch (e) {
+      console.warn('[dbSync] syncAnnotation failed:', e);
+    }
+  },
+
+  /** Delete an annotation row by its createdAt timestamp */
+  async deleteAnnotation(userId, pdfId, createdAt) {
+    const sb = this._sb();
+    if (!sb || !userId) return;
+    try {
+      await sb.from('annotations').delete()
+        .eq('user_id', userId).eq('pdf_id', pdfId).eq('created_at', createdAt);
+    } catch (e) {
+      console.warn('[dbSync] deleteAnnotation failed:', e);
     }
   },
 };
@@ -947,17 +988,23 @@ function renderAnnotations(pdfId) {
 
 function saveAnnotation(pdfId, text, page) {
   if (!store.annotations[pdfId]) store.annotations[pdfId] = [];
-  store.annotations[pdfId].unshift({ text, page, createdAt: new Date().toISOString() });
+  const createdAt = new Date().toISOString();
+  store.annotations[pdfId].unshift({ text, page, createdAt });
   store.save();
   renderAnnotations(pdfId);
   toast('Note saved', 'success');
   window.Analytics?.track('annotation_add', { pdfId, page });
+  const user = window.Auth?.user;
+  if (user) dbSync.syncAnnotation(user.id, pdfId, text, page, createdAt);
 }
 
 function deleteAnnotation(pdfId, idx) {
+  const note = store.annotations[pdfId][idx];
   store.annotations[pdfId].splice(idx, 1);
   store.save();
   renderAnnotations(pdfId);
+  const user = window.Auth?.user;
+  if (user && note) dbSync.deleteAnnotation(user.id, pdfId, note.createdAt);
 }
 
 /* ─────────────────────────────────────────────
@@ -1015,10 +1062,13 @@ function updateProgress() {
 ───────────────────────────────────────────── */
 function toggleSidebar() {
   state.sidebarOpen = !state.sidebarOpen;
-  dom.app.classList.toggle('sidebar-collapsed', !state.sidebarOpen);
   dom.sidebarToggle.setAttribute('aria-expanded', String(state.sidebarOpen));
   if (window.innerWidth < 680) {
+    // Mobile: drawer is controlled solely by sidebar-open class
     dom.app.classList.toggle('sidebar-open', state.sidebarOpen);
+  } else {
+    // Desktop: collapse/expand via grid column
+    dom.app.classList.toggle('sidebar-collapsed', !state.sidebarOpen);
   }
 }
 
@@ -1026,7 +1076,6 @@ function closeSidebarOnMobile() {
   if (window.innerWidth < 680 && state.sidebarOpen) {
     state.sidebarOpen = false;
     dom.app.classList.remove('sidebar-open');
-    dom.app.classList.add('sidebar-collapsed');
     dom.sidebarToggle.setAttribute('aria-expanded', 'false');
   }
 }
@@ -1280,7 +1329,7 @@ function wireEvents() {
   // Mobile: tap outside sidebar to close it
   dom.app.addEventListener('click', e => {
     if (window.innerWidth < 680 && dom.app.classList.contains('sidebar-open')) {
-      if (!dom.sidebar.contains(e.target) && e.target !== dom.sidebarToggle) {
+      if (!dom.sidebar.contains(e.target) && !dom.sidebarToggle.contains(e.target)) {
         closeSidebarOnMobile();
       }
     }
@@ -1432,6 +1481,8 @@ function refreshCustomNotes() {
 }
 
 function init() {
+  // On mobile the sidebar starts hidden; align state to match
+  if (window.innerWidth < 680) state.sidebarOpen = false;
   loadCustomNotesIntoPdfMap();
   renderSidebar();
   renderWelcome();
