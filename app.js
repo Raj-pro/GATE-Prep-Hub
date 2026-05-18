@@ -12,126 +12,126 @@ const SUBJECTS = [
     id: 's01', name: 'C & Data Structures', icon: '💾',
     color: '#6382ff', gradient: 'linear-gradient(135deg,#6382ff22,#a259ff22)',
     pdfs: [
-      { id: 'p0101', num: 1,  name: 'C & DS — Core Notes',            file: 'gate book - Copy/01_C_&_Data_Structure_Notes/1 ((((((0))))).C&DS(www.gatenotes.in).pdf',                                              driveId: '1wAUVgspBwtfnVUVK3XJ03fzZ_CEf-1Vv' },
-      { id: 'p0102', num: 3,  name: 'DS — Made Easy Toppers Notes',   file: 'gate book - Copy/01_C_&_Data_Structure_Notes/3 ((((0)))) .DS_made Easy Class Toppers Latest Notes(www.gatenotes.in).pdf',          driveId: '1VW8C_zeOP4CmFw8-usaJU-ijiLBq9opb' },
-      { id: 'p0103', num: 4,  name: 'Ace Academy — Data Structures',  file: 'gate book - Copy/01_C_&_Data_Structure_Notes/4 ((((((0))))) .Ace Academy Data Structure Class Notes(www.gatenotes.in).pdf',        driveId: '1P9_OLuRIGTidgkSXhYod1yg5xQ24KonG' },
-      { id: 'p0104', num: 7,  name: 'DS — GATE Applied Course',       file: 'gate book - Copy/01_C_&_Data_Structure_Notes/7 ((((0)))) .DATA STRUCTURE-GATEAppliedcourse NOTES(www.gatenotes.in).pdf',           driveId: '1jrOCQ4VKG6QkJFbqvaSFLx0BVPa_qssJ' },
-      { id: 'p0105', num: 9,  name: 'DS — Complete Notes',            file: 'gate book - Copy/01_C_&_Data_Structure_Notes/9 ((((((0)))))).DS Notes(www.gatenotes.in).pdf',                                       driveId: '14zi8aXw-pZGbZQOc5rb1V5yCNpTmrEjz' },
+      { id: 'p0101', num: 1,  name: 'C & DS — Core Notes',            file: 'gate book - Copy/01_C_&_Data_Structure_Notes/1 ((((((0))))).C&DS(www.gatenotes.in).pdf' },
+      { id: 'p0102', num: 3,  name: 'DS — Made Easy Toppers Notes',   file: 'gate book - Copy/01_C_&_Data_Structure_Notes/3 ((((0)))) .DS_made Easy Class Toppers Latest Notes(www.gatenotes.in).pdf' },
+      { id: 'p0103', num: 4,  name: 'Ace Academy — Data Structures',  file: 'gate book - Copy/01_C_&_Data_Structure_Notes/4 ((((((0))))) .Ace Academy Data Structure Class Notes(www.gatenotes.in).pdf' },
+      { id: 'p0104', num: 7,  name: 'DS — GATE Applied Course',       file: 'gate book - Copy/01_C_&_Data_Structure_Notes/7 ((((0)))) .DATA STRUCTURE-GATEAppliedcourse NOTES(www.gatenotes.in).pdf' },
+      { id: 'p0105', num: 9,  name: 'DS — Complete Notes',            file: 'gate book - Copy/01_C_&_Data_Structure_Notes/9 ((((((0)))))).DS Notes(www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's02', name: 'Algorithms', icon: '⚙️',
     color: '#a259ff', gradient: 'linear-gradient(135deg,#a259ff22,#6382ff22)',
     pdfs: [
-      { id: 'p0201', num: 1, name: 'Algorithm — Core Notes',      file: 'gate book - Copy/02_Algorithm_Notes/1  (((0)))) .Algorithm(www.gatenotes.in).pdf',              driveId: '12Z3bQFX-NrBB9nMKeSlSugOs0G6eAOtL' },
-      { id: 'p0202', num: 2, name: 'Algo — Sanchit Sir Notes',    file: 'gate book - Copy/02_Algorithm_Notes/2  (((((0))))) .Algo Sanchit Sir Notes(www.gatenotes.in).pdf', driveId: '1_nTd3ZNJH_zGUAyhPnS4V_66zrPQ0VZL' },
-      { id: 'p0203', num: 4, name: 'Algorithms — Class Notes',    file: 'gate book - Copy/02_Algorithm_Notes/4 ((((0)))) .Algorithms Notes(www.gatenotes.in).pdf',           driveId: '1oeY1XiQ0X5eHeFmePmZSBIJV1MnZNoO5' },
-      { id: 'p0204', num: 8, name: 'DAA — Complete Notes',        file: 'gate book - Copy/02_Algorithm_Notes/8 (((0))).DAA(www.gatenotes.in).pdf',                           driveId: '1pbHBbLCKgwrb6LeWDvStTVBoPxhk1aFv' },
+      { id: 'p0201', num: 1, name: 'Algorithm — Core Notes',      file: 'gate book - Copy/02_Algorithm_Notes/1  (((0)))) .Algorithm(www.gatenotes.in).pdf' },
+      { id: 'p0202', num: 2, name: 'Algo — Sanchit Sir Notes',    file: 'gate book - Copy/02_Algorithm_Notes/2  (((((0))))) .Algo Sanchit Sir Notes(www.gatenotes.in).pdf' },
+      { id: 'p0203', num: 4, name: 'Algorithms — Class Notes',    file: 'gate book - Copy/02_Algorithm_Notes/4 ((((0)))) .Algorithms Notes(www.gatenotes.in).pdf' },
+      { id: 'p0204', num: 8, name: 'DAA — Complete Notes',        file: 'gate book - Copy/02_Algorithm_Notes/8 (((0))).DAA(www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's03', name: 'Theory of Computation', icon: '🔁',
     color: '#00d4aa', gradient: 'linear-gradient(135deg,#00d4aa22,#6382ff22)',
     pdfs: [
-      { id: 'p0301', num: 1, name: 'TOC — Core Notes',             file: 'gate book - Copy/03_Theory_of_Computation_Notes/1.TOC(www.gatenotes.in).pdf',                              driveId: '1omfsry1qCZREhC1xbfmRv6Ykte6jf7dB' },
-      { id: 'p0302', num: 2, name: 'Theory of Computation',        file: 'gate book - Copy/03_Theory_of_Computation_Notes/2.Theory_of_Computation(www.gatenotes.in).pdf',        driveId: '1FEZHQtbznexQvAe7tPP6SoZXQ7_lhp55' },
-      { id: 'p0303', num: 3, name: 'TOC — Made Easy Class Notes',  file: 'gate book - Copy/03_Theory_of_Computation_Notes/3.TOC_Made Easy Class Latest Notes(www.gatenotes.in).pdf', driveId: '1EZe6eBvCMDalJbj414OyLLZakyxO433A' },
-      { id: 'p0304', num: 6, name: 'TOC — Complete Notes',         file: 'gate book - Copy/03_Theory_of_Computation_Notes/6.TOC Complete Notes(www.gatenotes.in).pdf',            driveId: '1NbzsA1noJeb9RUc0QpU4MhUtSpyCNNMD' },
-      { id: 'p0305', num: 7, name: 'TOC — Extended Notes',         file: 'gate book - Copy/03_Theory_of_Computation_Notes/7.TOC notes(www.gatenotes.in).pdf',                    driveId: '1UsN99pYuwgi_74qjAVxLxuFAJb6jGf4v' },
+      { id: 'p0301', num: 1, name: 'TOC — Core Notes',             file: 'gate book - Copy/03_Theory_of_Computation_Notes/1.TOC(www.gatenotes.in).pdf' },
+      { id: 'p0302', num: 2, name: 'Theory of Computation',        file: 'gate book - Copy/03_Theory_of_Computation_Notes/2.Theory_of_Computation(www.gatenotes.in).pdf' },
+      { id: 'p0303', num: 3, name: 'TOC — Made Easy Class Notes',  file: 'gate book - Copy/03_Theory_of_Computation_Notes/3.TOC_Made Easy Class Latest Notes(www.gatenotes.in).pdf' },
+      { id: 'p0304', num: 6, name: 'TOC — Complete Notes',         file: 'gate book - Copy/03_Theory_of_Computation_Notes/6.TOC Complete Notes(www.gatenotes.in).pdf' },
+      { id: 'p0305', num: 7, name: 'TOC — Extended Notes',         file: 'gate book - Copy/03_Theory_of_Computation_Notes/7.TOC notes(www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's04', name: 'Compiler Design', icon: '🛠',
     color: '#ff9f43', gradient: 'linear-gradient(135deg,#ff9f4322,#ff4d6d22)',
     pdfs: [
-      { id: 'p0401', num: 1, name: 'CD — Core Notes',              file: 'gate book - Copy/04_Compiler_Design_Notes/1.CD(www.gatenotes.in).pdf',                                    driveId: '1neIIgtxR72Rm6Qx6O6Y3RaS0nzKoDuuE' },
-      { id: 'p0402', num: 2, name: 'CD — Sanchit Sir Notes',       file: 'gate book - Copy/04_Compiler_Design_Notes/2.CD Sanchit Sir Notes(www.gatenotes.in).pdf',                driveId: '1fZwffJv1vKVQFiwfoOVwKMqxHUWOxV9q' },
-      { id: 'p0403', num: 3, name: 'Ace Academy — Compiler Design',file: 'gate book - Copy/04_Compiler_Design_Notes/3.Ace Academy Compiler Design Class Notes(www.gatenotes.in).pdf', driveId: '1-4Zl-_HuVGrdkGEkmcmr_uW84hTIFKdt' },
-      { id: 'p0404', num: 5, name: 'Compiler Design — Full Notes', file: 'gate book - Copy/04_Compiler_Design_Notes/5.Compiler Design (www.gatenotes.in).pdf',                    driveId: '1ZZi1oD7AAJ54USs-xuHoR1F5PCcuWvT0' },
+      { id: 'p0401', num: 1, name: 'CD — Core Notes',              file: 'gate book - Copy/04_Compiler_Design_Notes/1.CD(www.gatenotes.in).pdf' },
+      { id: 'p0402', num: 2, name: 'CD — Sanchit Sir Notes',       file: 'gate book - Copy/04_Compiler_Design_Notes/2.CD Sanchit Sir Notes(www.gatenotes.in).pdf' },
+      { id: 'p0403', num: 3, name: 'Ace Academy — Compiler Design',file: 'gate book - Copy/04_Compiler_Design_Notes/3.Ace Academy Compiler Design Class Notes(www.gatenotes.in).pdf' },
+      { id: 'p0404', num: 5, name: 'Compiler Design — Full Notes', file: 'gate book - Copy/04_Compiler_Design_Notes/5.Compiler Design (www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's05', name: 'Operating Systems', icon: '🖥',
     color: '#54a0ff', gradient: 'linear-gradient(135deg,#54a0ff22,#00d4aa22)',
     pdfs: [
-      { id: 'p0501', num: 1, name: 'OS — Core Notes',              file: 'gate book - Copy/05_Operating_System_Notes/1.OS(www.gatenotes.in).pdf',                                    driveId: '1AxA13yFVybMxOK3mXOx2clW9FL8vQwm9' },
-      { id: 'p0502', num: 2, name: 'OS — Sanchit Sir Notes',       file: 'gate book - Copy/05_Operating_System_Notes/2.OS Sanchit Sir Notes(www.gatenotes.in).pdf',                driveId: '1xATiyt5E8g3Z1AwWZeENVCe5Utg1NAyt' },
-      { id: 'p0503', num: 3, name: 'OS — Made Easy Class (Delhi)', file: 'gate book - Copy/05_Operating_System_Notes/3.OS_Made Easy Class Latest Notes_Delhi(www.gatenotes.in).pdf', driveId: '19vOpzJuzrZ7bd6wuE9KSxkrwwM5G4lpK' },
-      { id: 'p0504', num: 7, name: 'OS — Extended Notes',          file: 'gate book - Copy/05_Operating_System_Notes/7.OS Notes (www.gatenotes.in).pdf',                           driveId: '1zbdvaIxXQvCSH5dRDWpf8rS-tKAAGhh5' },
-      { id: 'p0505', num: 8, name: 'Operating Systems — Full',     file: 'gate book - Copy/05_Operating_System_Notes/8.Operation Systems(www.gatenotes.in).pdf',                   driveId: '1Q0nt5emadAV5C21glZRAEfxN1XfMLrn7' },
+      { id: 'p0501', num: 1, name: 'OS — Core Notes',              file: 'gate book - Copy/05_Operating_System_Notes/1.OS(www.gatenotes.in).pdf' },
+      { id: 'p0502', num: 2, name: 'OS — Sanchit Sir Notes',       file: 'gate book - Copy/05_Operating_System_Notes/2.OS Sanchit Sir Notes(www.gatenotes.in).pdf' },
+      { id: 'p0503', num: 3, name: 'OS — Made Easy Class (Delhi)', file: 'gate book - Copy/05_Operating_System_Notes/3.OS_Made Easy Class Latest Notes_Delhi(www.gatenotes.in).pdf' },
+      { id: 'p0504', num: 7, name: 'OS — Extended Notes',          file: 'gate book - Copy/05_Operating_System_Notes/7.OS Notes (www.gatenotes.in).pdf' },
+      { id: 'p0505', num: 8, name: 'Operating Systems — Full',     file: 'gate book - Copy/05_Operating_System_Notes/8.Operation Systems(www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's06', name: 'DBMS', icon: '🗄',
     color: '#ff6b6b', gradient: 'linear-gradient(135deg,#ff6b6b22,#ff9f4322)',
     pdfs: [
-      { id: 'p0601', num: 1, name: 'DBMS — Core Notes',            file: 'gate book - Copy/06_DBMS_Notes/1.DBMS(www.gatenotes.in).pdf',                    driveId: '1qA6L9DPDYpkAfHY-db5g3i6HA2niFfxW' },
-      { id: 'p0602', num: 2, name: 'DBMS — Sanchit Sir Notes',     file: 'gate book - Copy/06_DBMS_Notes/2.DBMS Sanchit Sir Notes(www.gatenotes.in).pdf', driveId: '1KZ1ZfBNkijlzr65KjH6LhQ51KvVOaPGS' },
-      { id: 'p0603', num: 3, name: 'Made Easy — DBMS Class Notes', file: 'gate book - Copy/06_DBMS_Notes/3.Made Easy Class_DBMS(www.gatenotes.in).pdf',   driveId: '1pIVLgL6gNZNGNORIyyxgnMi4X_VmttIQ' },
-      { id: 'p0604', num: 6, name: 'DBMS — Complete Notes',        file: 'gate book - Copy/06_DBMS_Notes/6.DBMS Notes(www.gatenotes.in).pdf',              driveId: '1LWTs18GoMnnrnLsqAqxZoGaZ8X2POv-X' },
+      { id: 'p0601', num: 1, name: 'DBMS — Core Notes',            file: 'gate book - Copy/06_DBMS_Notes/1.DBMS(www.gatenotes.in).pdf' },
+      { id: 'p0602', num: 2, name: 'DBMS — Sanchit Sir Notes',     file: 'gate book - Copy/06_DBMS_Notes/2.DBMS Sanchit Sir Notes(www.gatenotes.in).pdf' },
+      { id: 'p0603', num: 3, name: 'Made Easy — DBMS Class Notes', file: 'gate book - Copy/06_DBMS_Notes/3.Made Easy Class_DBMS(www.gatenotes.in).pdf' },
+      { id: 'p0604', num: 6, name: 'DBMS — Complete Notes',        file: 'gate book - Copy/06_DBMS_Notes/6.DBMS Notes(www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's07', name: 'Computer Organization & Architecture', icon: '🔌',
     color: '#5f27cd', gradient: 'linear-gradient(135deg,#5f27cd22,#a259ff22)',
     pdfs: [
-      { id: 'p0701', num: 1, name: 'COA — Core Notes',             file: 'gate book - Copy/07_COA_Notes/1.COA(www.gatenotes.in).pdf',                          driveId: '131Rk4oEfJNrVnyNJ2I71KCFiArkhXbH_' },
-      { id: 'p0702', num: 2, name: 'COA — Sanchit Sir Notes',      file: 'gate book - Copy/07_COA_Notes/2.COA Sanchit Sir Notes(www.gatenotes.in).pdf',       driveId: '1h9D4oDMHmz56FrIeQbqbVgxatrFnPRWH' },
-      { id: 'p0703', num: 3, name: 'CO — Made Easy Class Notes',   file: 'gate book - Copy/07_COA_Notes/3.CO_Made Easy Class Latest Notes(www.gatenotes.in).pdf', driveId: '1UvMFT1DbOdkp9kWIWflF9V17rW3PUU99' },
-      { id: 'p0704', num: 4, name: 'Ace Academy — CO Class Notes', file: 'gate book - Copy/07_COA_Notes/4.Ace Academy CO Class Notes(www.gatenotes.in).pdf',   driveId: '1j4nXuJipR1U1u0mk9X6NuRAFVI0TCDx1' },
-      { id: 'p0705', num: 6, name: 'CO — Shared Notes',            file: 'gate book - Copy/07_COA_Notes/6.CO Shared Notes(www.gatenotes.in).pdf',              driveId: '1kb-7K06GEhYbEtvXRn5CewPw63-2ejom' },
-      { id: 'p0706', num: 7, name: 'CO — Vishvadeep Sir Notes',    file: 'gate book - Copy/07_COA_Notes/7.CO Vishvadeep sir Notes(www.gatenotes.in).pdf',      driveId: '1SuBt3VdS0xjqHXoD3eGXZDZMh6qbG8Yg' },
+      { id: 'p0701', num: 1, name: 'COA — Core Notes',             file: 'gate book - Copy/07_COA_Notes/1.COA(www.gatenotes.in).pdf' },
+      { id: 'p0702', num: 2, name: 'COA — Sanchit Sir Notes',      file: 'gate book - Copy/07_COA_Notes/2.COA Sanchit Sir Notes(www.gatenotes.in).pdf' },
+      { id: 'p0703', num: 3, name: 'CO — Made Easy Class Notes',   file: 'gate book - Copy/07_COA_Notes/3.CO_Made Easy Class Latest Notes(www.gatenotes.in).pdf' },
+      { id: 'p0704', num: 4, name: 'Ace Academy — CO Class Notes', file: 'gate book - Copy/07_COA_Notes/4.Ace Academy CO Class Notes(www.gatenotes.in).pdf' },
+      { id: 'p0705', num: 6, name: 'CO — Shared Notes',            file: 'gate book - Copy/07_COA_Notes/6.CO Shared Notes(www.gatenotes.in).pdf' },
+      { id: 'p0706', num: 7, name: 'CO — Vishvadeep Sir Notes',    file: 'gate book - Copy/07_COA_Notes/7.CO Vishvadeep sir Notes(www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's08', name: 'Digital Logic', icon: '⚡',
     color: '#ffd32a', gradient: 'linear-gradient(135deg,#ffd32a22,#ff9f4322)',
     pdfs: [
-      { id: 'p0801', num: 1,  name: 'Digital Logic — Core Notes',       file: 'gate book - Copy/08_Digital_Logic_Notes/1.Digital Logic(www.gatenotes.in).pdf',                              driveId: '1ZssMx0IUXUy9fw4sEGcgDoq9nCob2Gua' },
-      { id: 'p0802', num: 2,  name: 'Digital — Sanchit Sir Notes',      file: 'gate book - Copy/08_Digital_Logic_Notes/2.Digital Sanchit Sir Notes(www.gatenotes.in).pdf',                  driveId: '1Mtmw_fAUQivzjFlO4e5k692xztljKTc2' },
-      { id: 'p0803', num: 3,  name: 'DLD — Notes',                      file: 'gate book - Copy/08_Digital_Logic_Notes/3.DLD (www.gatenotes.in).pdf',                                       driveId: '1qJ8l1M5Ug1nWnxYYK1rLvIaiWeRBTq8_' },
-      { id: 'p0804', num: 4,  name: 'Made Easy — Digital Electronics',  file: 'gate book - Copy/08_Digital_Logic_Notes/4.digital electronics-1-1_Made Easy notes latest_(www.gatenotes.in).pdf', driveId: '13ZXUtmh9aRhzL9EOA1nEVEbZM2pZwQMy' },
-      { id: 'p0805', num: 6,  name: 'Digital Electronics — Handwritten',file: 'gate book - Copy/08_Digital_Logic_Notes/6.Digital Electronics Handwriting Notes (www.gatenotes.in).pdf',      driveId: '1JdpXdlbxtX-X5An4LOBY1fL0W37ihjZM' },
-      { id: 'p0806', num: 10, name: 'DLD — Complete Notes',              file: 'gate book - Copy/08_Digital_Logic_Notes/10.DLD Notes(www.gatenotes.in).pdf',                                  driveId: '1CmHvmA4jYSbFrbdruDx2FDF15TQjdhP8' },
+      { id: 'p0801', num: 1,  name: 'Digital Logic — Core Notes',       file: 'gate book - Copy/08_Digital_Logic_Notes/1.Digital Logic(www.gatenotes.in).pdf' },
+      { id: 'p0802', num: 2,  name: 'Digital — Sanchit Sir Notes',      file: 'gate book - Copy/08_Digital_Logic_Notes/2.Digital Sanchit Sir Notes(www.gatenotes.in).pdf' },
+      { id: 'p0803', num: 3,  name: 'DLD — Notes',                      file: 'gate book - Copy/08_Digital_Logic_Notes/3.DLD (www.gatenotes.in).pdf' },
+      { id: 'p0804', num: 4,  name: 'Made Easy — Digital Electronics',  file: 'gate book - Copy/08_Digital_Logic_Notes/4.digital electronics-1-1_Made Easy notes latest_(www.gatenotes.in).pdf' },
+      { id: 'p0805', num: 6,  name: 'Digital Electronics — Handwritten',file: 'gate book - Copy/08_Digital_Logic_Notes/6.Digital Electronics Handwriting Notes (www.gatenotes.in).pdf' },
+      { id: 'p0806', num: 10, name: 'DLD — Complete Notes',              file: 'gate book - Copy/08_Digital_Logic_Notes/10.DLD Notes(www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's09', name: 'Computer Networks', icon: '🌐',
     color: '#00d4aa', gradient: 'linear-gradient(135deg,#00d4aa22,#54a0ff22)',
     pdfs: [
-      { id: 'p0901', num: 1, name: 'CN — Core Notes',              file: 'gate book - Copy/09_Computer_Network_Notes/1.CN(www.gatenotes.in).pdf',                    driveId: '1RaBk9UDpI4KsnHBYc-6eXC-hWAzgL9eW' },
-      { id: 'p0902', num: 2, name: 'CN — Sanchit Sir Notes',       file: 'gate book - Copy/09_Computer_Network_Notes/2.CN Sanchit Sir Notes(www.gatenotes.in).pdf', driveId: '1DYVp6Xzi0xK7oK6HbcJ5hf0dLmY0IUqG' },
-      { id: 'p0903', num: 3, name: 'Ace Academy — CN Class Notes', file: 'gate book - Copy/09_Computer_Network_Notes/3.Ace Academy CN Class Notes(www.gatenotes.in).pdf', driveId: '1geB8P-rOB-d_2JI0mBU8Fw2Qbg4A4fc1' },
-      { id: 'p0904', num: 6, name: 'Computer Networks — Full',     file: 'gate book - Copy/09_Computer_Network_Notes/6.Computer Networks (www.gatenotes.in).pdf',    driveId: '1jMBkZlxieRHgsadc9NYIuyAqeZXLYqr9' },
+      { id: 'p0901', num: 1, name: 'CN — Core Notes',              file: 'gate book - Copy/09_Computer_Network_Notes/1.CN(www.gatenotes.in).pdf' },
+      { id: 'p0902', num: 2, name: 'CN — Sanchit Sir Notes',       file: 'gate book - Copy/09_Computer_Network_Notes/2.CN Sanchit Sir Notes(www.gatenotes.in).pdf' },
+      { id: 'p0903', num: 3, name: 'Ace Academy — CN Class Notes', file: 'gate book - Copy/09_Computer_Network_Notes/3.Ace Academy CN Class Notes(www.gatenotes.in).pdf' },
+      { id: 'p0904', num: 6, name: 'Computer Networks — Full',     file: 'gate book - Copy/09_Computer_Network_Notes/6.Computer Networks (www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's10', name: 'Discrete Mathematics', icon: '∑',
     color: '#6382ff', gradient: 'linear-gradient(135deg,#6382ff22,#00d4aa22)',
     pdfs: [
-      { id: 'p1001', num: 1, name: 'Discrete Math — Core Notes',  file: 'gate book - Copy/10_Discrete_Mathematics_Notes/1.Discrete Math(www.gatenotes.in).pdf',     driveId: '13jVWfJstiroZvQhlFtfhhDKGv650ehrI' },
-      { id: 'p1002', num: 2, name: 'Discrete Mathematics',        file: 'gate book - Copy/10_Discrete_Mathematics_Notes/2.Discrete Mathematics(www.gatenotes.in).pdf', driveId: '1H_zDBLF5nQDNKclLt8SAQ89dfcC9tw2I' },
-      { id: 'p1003', num: 3, name: 'DM — Sanchit Sir Notes',      file: 'gate book - Copy/10_Discrete_Mathematics_Notes/3.DM Sanchit Sir Notes(www.gatenotes.in).pdf', driveId: '1VaDO7BPttEhe5F0inUKs6mWhUax_dr5b' },
-      { id: 'p1004', num: 4, name: 'Discrete Math — Extended',    file: 'gate book - Copy/10_Discrete_Mathematics_Notes/4.Discrete Math(www.gatenotes.in).pdf',         driveId: '11rmB44FU0gmGzg6DOswJAJMycNnfxpGQ' },
+      { id: 'p1001', num: 1, name: 'Discrete Math — Core Notes',  file: 'gate book - Copy/10_Discrete_Mathematics_Notes/1.Discrete Math(www.gatenotes.in).pdf' },
+      { id: 'p1002', num: 2, name: 'Discrete Mathematics',        file: 'gate book - Copy/10_Discrete_Mathematics_Notes/2.Discrete Mathematics(www.gatenotes.in).pdf' },
+      { id: 'p1003', num: 3, name: 'DM — Sanchit Sir Notes',      file: 'gate book - Copy/10_Discrete_Mathematics_Notes/3.DM Sanchit Sir Notes(www.gatenotes.in).pdf' },
+      { id: 'p1004', num: 4, name: 'Discrete Math — Extended',    file: 'gate book - Copy/10_Discrete_Mathematics_Notes/4.Discrete Math(www.gatenotes.in).pdf' },
     ],
   },
   {
     id: 's11', name: 'Engineering Mathematics', icon: '📐',
     color: '#a259ff', gradient: 'linear-gradient(135deg,#a259ff22,#6382ff22)',
     pdfs: [
-      { id: 'p1101', num: 1, name: 'Engg. Maths — Made Easy (Handwritten)', file: 'gate book - Copy/11_Engineering_Mathematics_Notes/1.Engineering Maths Hand Written Notes Made Easy(www.gatenotes.in).pdf',           driveId: '1nqheSl7evz7LVg-JIVmIY7wEOUHuB62y' },
-      { id: 'p1102', num: 2, name: 'Quantitative Aptitude — R.S. Aggarwal', file: 'gate book - Copy/11_Engineering_Mathematics_Notes/1.Quantitative_Aptitude_for_Competitive_Examinations_by_R_S_Aggarwal.pdf', driveId: '1vxvQDWNidN7K4vRGufKoPK1hfAkXKGSm' },
+      { id: 'p1101', num: 1, name: 'Engg. Maths — Made Easy (Handwritten)', file: 'gate book - Copy/11_Engineering_Mathematics_Notes/1.Engineering Maths Hand Written Notes Made Easy(www.gatenotes.in).pdf' },
+      { id: 'p1102', num: 2, name: 'Quantitative Aptitude — R.S. Aggarwal', file: 'gate book - Copy/11_Engineering_Mathematics_Notes/1.Quantitative_Aptitude_for_Competitive_Examinations_by_R_S_Aggarwal.pdf' },
     ],
   },
   {
     id: 's12', name: 'General Ability', icon: '🧠',
     color: '#ff6b6b', gradient: 'linear-gradient(135deg,#ff6b6b22,#a259ff22)',
     pdfs: [
-      { id: 'p1201', num: 1, name: 'Quantitative Aptitude — R.S. Aggarwal', file: 'gate book - Copy/12_General_Ability_Notes/1.Quantitative_Aptitude_for_Competitive_Examinations_by_R_S_Aggarwal (1).pdf', driveId: '1DbeAAMVpTyNMjHAV04EcbUsjcgFB-sk-' },
-      { id: 'p1202', num: 2, name: 'NA Notes',                               file: 'gate book - Copy/12_General_Ability_Notes/2.NA Notes (www.gatenotes.in).pdf',                                                   driveId: '1fmymR5xwIwvRpardaJTp1BKY-qb52-_t' },
-      { id: 'p1203', num: 3, name: 'Reasoning & Aptitude — Made Easy',       file: 'gate book - Copy/12_General_Ability_Notes/3.Reasoning and Aptitude Made Easy Handwritten Notes for GATE(www.gatenotes.in).pdf', driveId: '1CMwVrHjAqx-xFPcQMvD5PMksOTp329z8' },
-      { id: 'p1204', num: 4, name: 'Verbal Ability — Class Notes',           file: 'gate book - Copy/12_General_Ability_Notes/4.VerbalAbility_Classnotes(www.gatenotes.in).pdf',                                   driveId: '1OjgAv3JElwo5tqzDqGmtepgtdWfa-YRE' },
-      { id: 'p1205', num: 5, name: 'English Notes',                          file: 'gate book - Copy/12_General_Ability_Notes/5.English(www.gatenotes.in).pdf',                                                     driveId: '1CE_NKhK73hAk9SZ7rBQjwNSf0eqZIK95' },
+      { id: 'p1201', num: 1, name: 'Quantitative Aptitude — R.S. Aggarwal', file: 'gate book - Copy/12_General_Ability_Notes/1.Quantitative_Aptitude_for_Competitive_Examinations_by_R_S_Aggarwal (1).pdf' },
+      { id: 'p1202', num: 2, name: 'NA Notes',                               file: 'gate book - Copy/12_General_Ability_Notes/2.NA Notes (www.gatenotes.in).pdf' },
+      { id: 'p1203', num: 3, name: 'Reasoning & Aptitude — Made Easy',       file: 'gate book - Copy/12_General_Ability_Notes/3.Reasoning and Aptitude Made Easy Handwritten Notes for GATE(www.gatenotes.in).pdf' },
+      { id: 'p1204', num: 4, name: 'Verbal Ability — Class Notes',           file: 'gate book - Copy/12_General_Ability_Notes/4.VerbalAbility_Classnotes(www.gatenotes.in).pdf' },
+      { id: 'p1205', num: 5, name: 'English Notes',                          file: 'gate book - Copy/12_General_Ability_Notes/5.English(www.gatenotes.in).pdf' },
     ],
   },
 ];
@@ -305,6 +305,21 @@ const dbSync = {
         .eq('user_id', userId).eq('pdf_id', pdfId).eq('created_at', createdAt);
     } catch (e) {
       console.warn('[dbSync] deleteAnnotation failed:', e);
+    }
+  },
+
+  /** Fetch drive IDs from Supabase and inject into PDF_MAP — only works when logged in */
+  async loadDriveIds() {
+    const sb = this._sb();
+    if (!sb) return;
+    try {
+      const { data } = await sb.from('pdfs').select('id, drive_id');
+      if (data) data.forEach(r => {
+        const entry = PDF_MAP.get(r.id);
+        if (entry) entry.driveId = r.drive_id;
+      });
+    } catch (e) {
+      console.warn('[dbSync] loadDriveIds failed:', e);
     }
   },
 };
@@ -1361,6 +1376,7 @@ window.onAuthStateChange = function(user) {
       if (_lastAuthUserId !== null) clearUserStore(); // different user — wipe previous
       _lastAuthUserId = user.id;
       dbSync.loadForUser(user.id);
+      dbSync.loadDriveIds();
     }
   } else {
     // Explicit logout — wipe everything
@@ -1375,6 +1391,7 @@ window.onAuthStateChange = function(user) {
 
 /** Reset favorites & bookmarks in memory and localStorage */
 function clearUserStore() {
+  PDF_MAP.forEach(entry => { delete entry.driveId; });
   store.favorites  = new Set();
   store.bookmarks  = {};
   store.save();
